@@ -77,28 +77,20 @@ async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
     } else if (error instanceof MyError && error.type === ErrorType.PrivateInformation) {
       ctx.reply("Ja dat weet ik niet")
     } else {
+      console.error("ERROR during birthday getting", error)
       ctx.reply("ja nee")
     }
   }
 }
 
 bot.command("birthday", async ctx => {
-  if (ctx.message.text.trim() === "/birthday") {
+  if (ctx.message.text.trim().split(" ").length === 1) {
     await sendBirthdayMessage(ctx)
   } else {
     // someone added a member username
     sendDaysToBirthdayMessage(ctx)
   }
 })
-
-const sprangId = process.env.SPRANG_ID
-if (sprangId != null) {
-  bot.command("sprang", async ctx => {
-    const birthDate = await getMemberBirthDate(sprangId)
-    const { days, age } = calculateDaysTillBirthDay(birthDate)
-    ctx.reply(`Nog ${days} dagen tot sprangs ${age}e verjaardag`)
-  })
-}
 
 bot.start(async ctx => {
   await addBirthdayChat(ctx.chat.id)

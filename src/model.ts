@@ -94,7 +94,7 @@ export async function getMemberBirthDate(username: string) {
       throw new MyError(ErrorType.MemberNotFound)
     }
   } else {
-    throw new Error("Unexpected error")
+    throw { ...new Error("Unexpected error"), httpResponse: res }
   }
 }
 

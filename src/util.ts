@@ -1,6 +1,3 @@
-import fetch from "node-fetch"
-import { CongressusMember } from "./model"
-
 /**
  * Checks whether the provided date is the same date as another
  * @param one The first date to check
@@ -35,7 +32,7 @@ export function calculateDaysTillBirthDay(birthDate: Date): { days: number; age:
     nextBirthDay.setFullYear(new Date().getFullYear())
   }
   const totalSeconds = nextBirthDay.getTime() - Date.now()
-  const days = Math.floor(totalSeconds / 86400000)
+  const days = Math.ceil(totalSeconds / 86400000)
   const nextAge = Math.abs(new Date(Date.now() - birthDate.getTime()).getFullYear() - 1970) + 1
   return { days, age: nextAge }
 }
