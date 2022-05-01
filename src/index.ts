@@ -1,7 +1,7 @@
 import "dotenv/config"
 import { Context, Telegraf } from "telegraf"
 import { CronJob } from "cron"
-import { getBirthdayChats, getStatusChats, getBirthDayMembers, checkIsAdmin } from "./model.js"
+import { getBirthdayChats, getStatusChats, getBirthDayMembers, addBirthdayChat, removeBirthdayChat } from "./model.js"
 import enableTrivia from "./trivia.js"
 import { Update } from "telegraf/typings/core/types/typegram"
 
@@ -52,10 +52,16 @@ async function sendBirthdayMessage(ctx?: Context<Update>) {
 const job = new CronJob("5 0 * * *", sendBirthdayMessage)
 
 bot.command("birthday", sendBirthdayMessage)
-
-bot.command("disable", async ctx => {
-  const isAdmin = await checkIsAdmin(ctx.from.id)
-  if (isAdmin) {
+bot.start(async ctx => {
+  await addBirthdayChat(ctx.chat.id)
+  ctx.reply("I will now announce birthdays at 00:05")
+})
+bot.command("cancel", async ctx => {
+  if (ctx.chat.type === "private" || (await ctx.getChatAdministrators()).map(m => m.user.id).includes(ctx.from.id)) {
+    await removeBirthdayChat(ctx.chat.id)
+    ctx.reply("K, I'll stop")
+  } else {
+    ctx.reply("hehe nice try")
   }
 })
 

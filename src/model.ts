@@ -31,6 +31,22 @@ export enum ChatType {
   Birthday = "birthday",
 }
 
+export async function addBirthdayChat(chatId: number) {
+  await knex("chats").insert({
+    chat_id: chatId,
+    type: ChatType.Birthday,
+  })
+}
+
+export async function removeBirthdayChat(chatId: number) {
+  await knex("chats")
+    .where({
+      chat_id: chatId,
+      type: ChatType.Birthday,
+    })
+    .delete()
+}
+
 const congressusToken = process.env.CONGRESSUS_TOKEN
 
 async function fetchBirthdayMembers() {
