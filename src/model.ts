@@ -77,12 +77,21 @@ export async function getBirthDayMembers() {
 }
 
 export async function getMemberBirthDate(username: string) {
-  const body = await fetch(`https://api.congressus.nl/v20/members?username=${username}`, {
+  const res = await fetch(`https://api.congressus.nl/v20/members?username=${username}`, {
     headers: {
       Authorization: `Bearer:${congressusToken}`,
     },
-  }).then(res => res.json() as Promise<CongressusMember[]>)
-  return new Date(body[0].date_of_birth)
+  })
+  if (res.ok) {
+    const body = (await res.json()) as CongressusMember[]
+    return new Date(body[0].date_of_birth)
+  } else {
+    if (res.status === 404) {
+      throw new Error("Member not found")
+    } else {
+      throw new Error("Unexpected error")
+    }
+  }
 }
 
 export type CongressusMember = {
