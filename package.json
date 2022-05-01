@@ -1,9 +1,12 @@
 {
+  "name": "derposbot",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "start": "ts-node-esm src/index.ts"
+    "start": "ts-node-esm src/index.ts",
+    "build": "tsc"
   },
   "dependencies": {
     "cron": "^1.8.3",
