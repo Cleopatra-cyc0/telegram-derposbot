@@ -45,6 +45,10 @@ bot.command("nerd", ctx => {
   ctx.replyWithHTML(`Oh jij coole nerd\n<pre language="json">${JSON.stringify(ctx.message, null, 2)}</pre>`)
 })
 
+bot.command("isdebaropen", ctx => {
+  ctx.reply("misschien")
+})
+
 bot.start(async ctx => {
   await persistChatInfo(ctx.chat.id, ctx.chat.type !== "private" ? ctx.chat.title : ctx.from.username!)
   ctx.reply("I will now announce birthdays at 00:05")
