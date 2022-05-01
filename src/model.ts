@@ -31,7 +31,7 @@ export enum ChatType {
   Birthday = "birthday",
 }
 
-export async function persistChatInfo(chatId: number, chatName: string, type = ChatType.Birthday) {
+export async function persistChatInfo(chatId: number, chatName: string, type: ChatType | null = ChatType.Birthday) {
   await knex("chats")
     .insert({
       tg_id: chatId.toString(),

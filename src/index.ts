@@ -20,12 +20,17 @@ if (!congressusToken) {
   process.exit(2)
 }
 
-// Create db connection and bot
-
+// Create bot
 const bot = new Telegraf(telegramToken)
 
 // Create cronjob to run every day at 00:05
 const job = new CronJob("5 0 * * *", () => sendBirthdayMessage(bot))
+bot.on(["message"], async (ctx, next) => {
+  await next()
+  if (ctx.chat != null) {
+    await persistChatInfo(ctx.chat.id, ctx.chat.type === "private" ? ctx.from.username! : ctx.chat.title, null)
+  }
+})
 
 bot.command("birthday", async ctx => {
   if (ctx.message.text.trim().split(" ").length === 1) {
