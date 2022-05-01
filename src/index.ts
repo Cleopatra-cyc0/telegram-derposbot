@@ -1,5 +1,5 @@
 import "dotenv/config"
-import { Telegraf } from "telegraf"
+import { Context, Telegraf } from "telegraf"
 import { CronJob } from "cron"
 import { getBirthdayChats, getStatusChats, getBirthDayMembers, checkIsAdmin } from "./model.js"
 import enableTrivia from "./trivia.js"
