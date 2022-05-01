@@ -39,3 +39,15 @@ export function calculateDaysTillBirthDay(birthDate: Date): { days: number; age:
   const nextAge = Math.abs(new Date(Date.now() - birthDate.getTime()).getFullYear() - 1970) + 1
   return { days, age: nextAge }
 }
+
+export enum ErrorType {
+  MemberNotFound,
+}
+
+export class MyError extends Error {
+  public readonly type: ErrorType
+  constructor(type: ErrorType) {
+    super(type.toString())
+    this.type = type
+  }
+}

@@ -11,7 +11,7 @@ import {
 } from "./model.js"
 import enableTrivia from "./trivia.js"
 import { Update, Message } from "telegraf/typings/core/types/typegram"
-import { calculateDaysTillBirthDay } from "./util.js"
+import { calculateDaysTillBirthDay, ErrorType, MyError } from "./util.js"
 
 const telegramToken = process.env.TG_TOKEN
 const congressusToken = process.env.CONGRESSUS_TOKEN
@@ -65,8 +65,11 @@ async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
     const { days, age } = calculateDaysTillBirthDay(birthDate)
     ctx.reply(`Nog ${days} dagen tot hun ${age}e verjaardag`)
   } catch (error) {
-    console.log(error)
-    ctx.reply("ja nee")
+    if (error instanceof MyError && error.type === ErrorType.MemberNotFound) {
+      ctx.reply("Nooit van gehoord die")
+    } else {
+      ctx.reply("ja nee")
+    }
   }
 }
 

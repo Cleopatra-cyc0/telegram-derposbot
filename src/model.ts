@@ -1,5 +1,5 @@
 import Knex from "knex"
-import { IsSameDate } from "./util.js"
+import { ErrorType, IsSameDate, MyError } from "./util.js"
 import fetch from "node-fetch"
 
 const dbConnctionString = process.env.DB_CONNECTION
@@ -87,7 +87,7 @@ export async function getMemberBirthDate(username: string) {
     if (body.length > 0) {
       return new Date(body[0].date_of_birth)
     } else {
-      throw new Error("Member not found")
+      throw new MyError(ErrorType.MemberNotFound)
     }
   } else {
     throw new Error("Unexpected error")
