@@ -182,11 +182,3 @@ export type CongressusMember = {
   payment_success_uri: string
   payment_start_uri: string
 }
-
-export async function checkIsAdmin(memberId: number) {
-  const res = (await knex("chats").count("*").where({
-    tg_id: memberId,
-    type: ChatType.Status,
-  })) as unknown as { count: number }
-  return res.count > 0
-}
