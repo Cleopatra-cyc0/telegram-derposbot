@@ -70,7 +70,7 @@ async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
   try {
     const birthDate = await getMemberBirthDate(username.toLocaleUpperCase())
     const { days, age } = calculateDaysTillBirthDay(birthDate)
-    ctx.reply(`Nog ${days} dagen tot hun ${age}e verjaardag`)
+    ctx.reply(`Nog ${days} ${days === 1 ? "dag" : "dagen"} tot hun ${age}e verjaardag`)
   } catch (error) {
     if (error instanceof MyError && error.type === ErrorType.MemberNotFound) {
       ctx.reply("Nooit van gehoord die")
