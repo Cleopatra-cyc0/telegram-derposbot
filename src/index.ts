@@ -1,17 +1,9 @@
 import "dotenv/config"
-import { Context, Telegraf } from "telegraf"
+import { Telegraf } from "telegraf"
 import { CronJob } from "cron"
-import {
-  getBirthdayChats,
-  getStatusChats,
-  getBirthDayMembers,
-  persistChatInfo,
-  removeBirthdayChat,
-  getMemberBirthDate,
-} from "./model.js"
+import { getStatusChats, persistChatInfo, removeBirthdayChat } from "./model.js"
 import enableTrivia from "./trivia.js"
-import { Update, Message } from "telegraf/typings/core/types/typegram"
-import { calculateDaysTillBirthDay, ErrorType, MyError } from "./util.js"
+import { sendBirthdayMessage, sendDaysToBirthdayMessage } from "./util.js"
 
 const telegramToken = process.env.TG_TOKEN
 const congressusToken = process.env.CONGRESSUS_TOKEN
@@ -32,60 +24,12 @@ if (!congressusToken) {
 
 const bot = new Telegraf(telegramToken)
 
-async function sendBirthdayMessage(ctx?: Context<Update>) {
-  try {
-    const birthDayMembers = await getBirthDayMembers()
-    let message
-    if (birthDayMembers.length === 0) {
-      message = "Helaas is er niemand jarig vandaag"
-    } else if (birthDayMembers.length === 1) {
-      message = `Gefeliciteerd! ${birthDayMembers[0]}!`
-    } else {
-      message = `Gefeliciteerd!`
-      for (const name of birthDayMembers) {
-        message = `${message}\n- ${name}`
-      }
-    }
-    const chats = await getBirthdayChats()
-
-    if (ctx) {
-      ctx.reply(message)
-    } else {
-      for (const chatId of chats) {
-        bot.telegram.sendMessage(chatId, message)
-      }
-    }
-  } catch (error) {
-    if (ctx != null) {
-      ctx.reply("Ging wat mis ja")
-    }
-    console.error(error)
-  }
-}
-
 // Create cronjob to run every day at 00:05
-const job = new CronJob("5 0 * * *", sendBirthdayMessage)
-async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
-  const username = (ctx!.message as Message.TextMessage).text.split(" ")[1]
-  try {
-    const birthDate = await getMemberBirthDate(username.toLocaleUpperCase())
-    const { days, age } = calculateDaysTillBirthDay(birthDate)
-    ctx.reply(`Nog ${days} ${days === 1 ? "dag" : "dagen"} tot hun ${age}e verjaardag`)
-  } catch (error) {
-    if (error instanceof MyError && error.type === ErrorType.MemberNotFound) {
-      ctx.reply("Nooit van gehoord die")
-    } else if (error instanceof MyError && error.type === ErrorType.PrivateInformation) {
-      ctx.reply("Ja dat weet ik niet")
-    } else {
-      console.error("ERROR during birthday getting", error)
-      ctx.reply("ja nee")
-    }
-  }
-}
+const job = new CronJob("5 0 * * *", () => sendBirthdayMessage(bot))
 
 bot.command("birthday", async ctx => {
   if (ctx.message.text.trim().split(" ").length === 1) {
-    await sendBirthdayMessage(ctx)
+    await sendBirthdayMessage(bot, ctx)
   } else {
     // someone added a member username
     sendDaysToBirthdayMessage(ctx)
