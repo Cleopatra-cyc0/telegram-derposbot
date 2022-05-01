@@ -11,3 +11,5 @@ lerna-debug.log*
 
 .env*
 !.env.template
+
+build
