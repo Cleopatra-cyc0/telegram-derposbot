@@ -97,7 +97,7 @@ bot.command("nerd", ctx => {
 })
 
 bot.start(async ctx => {
-  await addBirthdayChat(ctx.chat.id)
+  await addBirthdayChat(ctx.chat.id, ctx.chat.type !== "private" ? ctx.chat.title : ctx.from.username!)
   ctx.reply("I will now announce birthdays at 00:05")
 })
 bot.command("cancel", async ctx => {

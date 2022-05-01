@@ -31,9 +31,10 @@ export enum ChatType {
   Birthday = "birthday",
 }
 
-export async function addBirthdayChat(chatId: number) {
+export async function addBirthdayChat(chatId: number, chatName: string | null) {
   await knex("chats").insert({
-    chat_id: chatId,
+    chat_id: chatId.toString(),
+    chat_name: chatName,
     type: ChatType.Birthday,
   })
 }
