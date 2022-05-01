@@ -72,10 +72,18 @@ async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
     const { days, age } = calculateDaysTillBirthDay(birthDate)
     ctx.reply(`Nog ${days} ${days === 1 ? "dag" : "dagen"} tot hun ${age}e verjaardag`)
   } catch (error) {
-    if (error instanceof MyError && error.type === ErrorType.MemberNotFound) {
-      ctx.reply("Nooit van gehoord die")
-    } else if (error instanceof MyError && error.type === ErrorType.PrivateInformation) {
-      ctx.reply("Ja dat weet ik niet")
+    if (error instanceof MyError) {
+      switch (error.type) {
+        case ErrorType.MemberNotFound:
+          ctx.reply("Nooit van gehoord die")
+          break
+        case ErrorType.PrivateInformation:
+          ctx.reply("Ja dat weet ik niet")
+          break
+        case ErrorType.CongressusNetworkError:
+          ctx.reply("Congressus doet kut")
+          break
+      }
     } else {
       console.error("ERROR during birthday getting", error)
       ctx.reply("ja nee")

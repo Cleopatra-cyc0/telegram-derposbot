@@ -1,6 +1,6 @@
 import Knex from "knex"
 import { ErrorType, IsSameDate, MyError } from "./util.js"
-import fetch from "node-fetch"
+import fetch, { FetchError } from "node-fetch"
 
 const dbConnctionString = process.env.DB_CONNECTION
 
@@ -77,25 +77,37 @@ export async function getBirthDayMembers() {
   return birthdayCache.cache
 }
 
-export async function getMemberBirthDate(username: string) {
-  const res = await fetch(`https://api.congressus.nl/v20/members?username=${username}`, {
-    headers: {
-      Authorization: `Bearer:${congressusToken}`,
-    },
-  })
-  if (res.ok) {
-    const body = (await res.json()) as CongressusMember[]
-    if (body.length > 0) {
-      if (body[0].show_almanac_date_of_birth) {
-        return new Date(body[0].date_of_birth)
+export async function getMemberBirthDate(username: string, retry: number = 0): Promise<Date> {
+  try {
+    const res = await fetch(`https://api.congressus.nl/v20/members?username=${username}`, {
+      headers: {
+        Authorization: `Bearer:${congressusToken}`,
+      },
+    })
+    if (res.ok) {
+      const body = (await res.json()) as CongressusMember[]
+      if (body.length > 0) {
+        if (body[0].show_almanac_date_of_birth) {
+          return new Date(body[0].date_of_birth)
+        } else {
+          throw new MyError(ErrorType.PrivateInformation)
+        }
       } else {
-        throw new MyError(ErrorType.PrivateInformation)
+        throw new MyError(ErrorType.MemberNotFound)
       }
     } else {
-      throw new MyError(ErrorType.MemberNotFound)
+      throw { ...new Error("Unexpected error"), httpResponse: res }
     }
-  } else {
-    throw { ...new Error("Unexpected error"), httpResponse: res }
+  } catch (error) {
+    if (error instanceof FetchError) {
+      if (retry < 3) {
+        return getMemberBirthDate(username, retry + 1)
+      } else {
+        throw new MyError(ErrorType.CongressusNetworkError)
+      }
+    } else {
+      throw new Error("unexpected error", { cause: error as Error })
+    }
   }
 }
 
