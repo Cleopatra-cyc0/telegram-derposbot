@@ -10,7 +10,7 @@ import {
   getMemberBirthDate,
 } from "./model.js"
 import enableTrivia from "./trivia.js"
-import { Update } from "telegraf/typings/core/types/typegram"
+import { Update, Message } from "telegraf/typings/core/types/typegram"
 
 const telegramToken = process.env.TG_TOKEN
 const congressusToken = process.env.CONGRESSUS_TOKEN
@@ -57,8 +57,29 @@ async function sendBirthdayMessage(ctx?: Context<Update>) {
 
 // Create cronjob to run every day at 00:05
 const job = new CronJob("5 0 * * *", sendBirthdayMessage)
+async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
+  const username = (ctx!.message as Message.TextMessage).text.split(" ")[1]
+  try {
+    const birthDate = await getMemberBirthDate(username)
+    const nextBirthDay = new Date(birthDate)
+    nextBirthDay.setFullYear(new Date().getFullYear() + 1)
+    const totalSeconds = nextBirthDay.getTime() - Date.now()
+    const days = Math.floor(totalSeconds / 86400000)
+    const nextAge = Math.abs(new Date(Date.now() - birthDate.getTime()).getFullYear() - 1970) + 1
+    ctx.reply(`Nog ${days} dagen tot hun ${nextAge}e verjaardag`)
+  } catch (error) {
+    ctx.reply("ja nee")
+  }
+}
 
-bot.command("birthday", sendBirthdayMessage)
+bot.command("birthday", async ctx => {
+  if (ctx.message.text.trim() === "/birthday") {
+    await sendBirthdayMessage(ctx)
+  } else {
+    // someone added a member username
+    sendDaysToBirthdayMessage(ctx)
+  }
+})
 
 const sprangId = process.env.SPRANG_ID
 if (sprangId != null) {
@@ -72,6 +93,7 @@ if (sprangId != null) {
     ctx.reply(`Nog ${days} dagen tot sprangs ${nextAge}e verjaardag`)
   })
 }
+
 bot.start(async ctx => {
   await addBirthdayChat(ctx.chat.id)
   ctx.reply("I will now announce birthdays at 00:05")
