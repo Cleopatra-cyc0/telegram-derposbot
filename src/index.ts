@@ -1,7 +1,14 @@
 import "dotenv/config"
 import { Context, Telegraf } from "telegraf"
 import { CronJob } from "cron"
-import { getBirthdayChats, getStatusChats, getBirthDayMembers, addBirthdayChat, removeBirthdayChat } from "./model.js"
+import {
+  getBirthdayChats,
+  getStatusChats,
+  getBirthDayMembers,
+  addBirthdayChat,
+  removeBirthdayChat,
+  getMemberBirthDate,
+} from "./model.js"
 import enableTrivia from "./trivia.js"
 import { Update } from "telegraf/typings/core/types/typegram"
 
@@ -52,6 +59,19 @@ async function sendBirthdayMessage(ctx?: Context<Update>) {
 const job = new CronJob("5 0 * * *", sendBirthdayMessage)
 
 bot.command("birthday", sendBirthdayMessage)
+
+const sprangId = process.env.SPRANG_ID
+if (sprangId != null) {
+  bot.command("sprang", async ctx => {
+    const birthDate = await getMemberBirthDate(sprangId)
+    const nextBirthDay = new Date(birthDate)
+    nextBirthDay.setFullYear(new Date().getFullYear() + 1)
+    const totalSeconds = nextBirthDay.getTime() - Date.now()
+    const days = Math.floor(totalSeconds / 86400000)
+    const nextAge = Math.abs(new Date(Date.now() - birthDate.getTime()).getFullYear() - 1970) + 1
+    ctx.reply(`Nog ${days} dagen tot sprangs ${nextAge}e verjaardag`)
+  })
+}
 bot.start(async ctx => {
   await addBirthdayChat(ctx.chat.id)
   ctx.reply("I will now announce birthdays at 00:05")

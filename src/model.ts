@@ -76,6 +76,15 @@ export async function getBirthDayMembers() {
   return birthdayCache.cache
 }
 
+export async function getMemberBirthDate(username: string) {
+  const body = await fetch(`https://api.congressus.nl/v20/members?username=${username}`, {
+    headers: {
+      Authorization: `Bearer:${congressusToken}`,
+    },
+  }).then(res => res.json() as Promise<CongressusMember[]>)
+  return new Date(body[0].date_of_birth)
+}
+
 export type CongressusMember = {
   id: 0
   username: string
