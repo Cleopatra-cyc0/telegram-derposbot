@@ -22,8 +22,8 @@ export function getBirthdayChats(): Promise<number[]> {
 function getChatsByType(type: ChatType) {
   return knex("chats")
     .where("type", type)
-    .select("chat_id")
-    .then(rows => rows.map(row => row.chat_id as number))
+    .select("tg_id")
+    .then(rows => rows.map(row => row.tg_id as number))
 }
 
 export enum ChatType {
@@ -31,21 +31,22 @@ export enum ChatType {
   Birthday = "birthday",
 }
 
-export async function addBirthdayChat(chatId: number, chatName: string | null) {
-  // the delete is because names were added later
-  // change this to a check when all names are known
-  await knex("chats").where({ chat_id: chatId.toString(), type: ChatType.Birthday }).delete()
-  await knex("chats").insert({
-    chat_id: chatId.toString(),
-    chat_name: chatName,
-    type: ChatType.Birthday,
-  })
+export async function persistChatInfo(chatId: number, chatName: string, type = ChatType.Birthday) {
+  await knex("chats")
+    .insert({
+      tg_id: chatId.toString(),
+      name: chatName,
+      type,
+    })
+    // below is for upsert
+    .onConflict(["td_id", "type"]) // if record with this id/type
+    .merge() // update instead of insert
 }
 
 export async function removeBirthdayChat(chatId: number) {
   await knex("chats")
     .where({
-      chat_id: chatId,
+      tg_id: chatId,
       type: ChatType.Birthday,
     })
     .delete()
@@ -172,7 +173,7 @@ export type CongressusMember = {
 
 export async function checkIsAdmin(memberId: number) {
   const res = (await knex("chats").count("*").where({
-    chat_id: memberId,
+    tg_id: memberId,
     type: ChatType.Status,
   })) as unknown as { count: number }
   return res.count > 0
