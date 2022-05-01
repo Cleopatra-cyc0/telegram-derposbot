@@ -92,6 +92,10 @@ bot.command("birthday", async ctx => {
   }
 })
 
+bot.command("nerd", ctx => {
+  ctx.replyWithHTML(`Oh jij coole nerd\n<pre language="json">${JSON.stringify(ctx.message, null, 2)}</pre>`)
+})
+
 bot.start(async ctx => {
   await addBirthdayChat(ctx.chat.id)
   ctx.reply("I will now announce birthdays at 00:05")
