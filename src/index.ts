@@ -1,7 +1,7 @@
 import "dotenv/config"
 import { Telegraf } from "telegraf"
 import { CronJob } from "cron"
-import { getStatusChats, persistChatInfo, removeBirthdayChat } from "./model.js"
+import { ChatType, getStatusChats, persistChatInfo, removeChatInfo } from "./model.js"
 import enableTrivia from "./trivia.js"
 import { sendBirthdayMessage, sendDaysToBirthdayMessage } from "./util.js"
 
@@ -25,12 +25,6 @@ const bot = new Telegraf(telegramToken)
 
 // Create cronjob to run every day at 00:05
 const job = new CronJob("5 0 * * *", () => sendBirthdayMessage(bot))
-bot.on(["message"], async (ctx, next) => {
-  await next()
-  if (ctx.chat != null) {
-    await persistChatInfo(ctx.chat.id, ctx.chat.type === "private" ? ctx.from.username! : ctx.chat.title, null)
-  }
-})
 
 bot.command("birthday", async ctx => {
   if (ctx.message.text.trim().split(" ").length === 1) {
@@ -50,12 +44,12 @@ bot.command("isdebaropen", ctx => {
 })
 
 bot.start(async ctx => {
-  await persistChatInfo(ctx.chat.id, ctx.chat.type !== "private" ? ctx.chat.title : ctx.from.username!)
+  await persistChatInfo(ctx.chat.id, ChatType.Birthday)
   ctx.reply("I will now announce birthdays at 00:05")
 })
 bot.command("cancel", async ctx => {
   if (ctx.chat.type === "private" || (await ctx.getChatAdministrators()).map(m => m.user.id).includes(ctx.from.id)) {
-    await removeBirthdayChat(ctx.chat.id)
+    await removeChatInfo(ctx.chat.id, ChatType.Birthday)
     ctx.reply("K, I'll stop")
   } else {
     ctx.reply("hehe nice try")

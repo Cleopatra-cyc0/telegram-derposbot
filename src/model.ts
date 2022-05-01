@@ -31,23 +31,18 @@ export enum ChatType {
   Birthday = "birthday",
 }
 
-export async function persistChatInfo(chatId: number, chatName: string, type: ChatType | null = ChatType.Birthday) {
-  await knex("chats")
-    .insert({
-      tg_id: chatId.toString(),
-      name: chatName,
-      type,
-    })
-    // below is for upsert
-    .onConflict(["tg_id", "type"]) // if record with this id/type
-    .merge() // update instead of insert
+export async function persistChatInfo(chatId: number, type: ChatType) {
+  await knex("chats").insert({
+    tg_id: chatId.toString(),
+    type,
+  })
 }
 
-export async function removeBirthdayChat(chatId: number) {
+export async function removeChatInfo(chatId: number, type: ChatType) {
   await knex("chats")
     .where({
       tg_id: chatId,
-      type: ChatType.Birthday,
+      type,
     })
     .delete()
 }
