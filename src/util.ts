@@ -42,6 +42,7 @@ export function calculateDaysTillBirthDay(birthDate: Date): { days: number; age:
 
 export enum ErrorType {
   MemberNotFound,
+  PrivateInformation,
 }
 
 export class MyError extends Error {

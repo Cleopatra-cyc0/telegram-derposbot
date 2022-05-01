@@ -74,6 +74,8 @@ async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
   } catch (error) {
     if (error instanceof MyError && error.type === ErrorType.MemberNotFound) {
       ctx.reply("Nooit van gehoord die")
+    } else if (error instanceof MyError && error.type === ErrorType.PrivateInformation) {
+      ctx.reply("Ja dat weet ik niet")
     } else {
       ctx.reply("ja nee")
     }

@@ -85,7 +85,11 @@ export async function getMemberBirthDate(username: string) {
   if (res.ok) {
     const body = (await res.json()) as CongressusMember[]
     if (body.length > 0) {
-      return new Date(body[0].date_of_birth)
+      if (body[0].show_almanac_date_of_birth) {
+        return new Date(body[0].date_of_birth)
+      } else {
+        throw new MyError(ErrorType.PrivateInformation)
+      }
     } else {
       throw new MyError(ErrorType.MemberNotFound)
     }
