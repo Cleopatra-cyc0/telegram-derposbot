@@ -32,6 +32,9 @@ export enum ChatType {
 }
 
 export async function addBirthdayChat(chatId: number, chatName: string | null) {
+  // the delete is because names were added later
+  // change this to a check when all names are known
+  await knex("chats").where({ chat_id: chatId.toString(), type: ChatType.Birthday }).delete()
   await knex("chats").insert({
     chat_id: chatId.toString(),
     chat_name: chatName,
