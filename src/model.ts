@@ -62,13 +62,13 @@ async function fetchBirthdayMembers() {
     .map(m => `${m.first_name} ${m.primary_last_name_prefix} ${m.primary_last_name_main}`)
 }
 
-const birthdayCache: { date: Date; cache: string[] } = {
-  date: new Date(),
+const birthdayCache: { date: Date | null; cache: string[] } = {
+  date: null,
   cache: [],
 }
 
 export async function getBirthDayMembers() {
-  if (!IsSameDate(birthdayCache.date)) {
+  if (birthdayCache.date == null || !IsSameDate(birthdayCache.date)) {
     birthdayCache.cache = await fetchBirthdayMembers()
     birthdayCache.date = new Date()
   }
