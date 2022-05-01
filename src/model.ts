@@ -39,7 +39,7 @@ export async function persistChatInfo(chatId: number, chatName: string, type: Ch
       type,
     })
     // below is for upsert
-    .onConflict(["td_id", "type"]) // if record with this id/type
+    .onConflict(["tg_id", "type"]) // if record with this id/type
     .merge() // update instead of insert
 }
 
