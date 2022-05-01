@@ -13,3 +13,6 @@ lerna-debug.log*
 !.env.template
 
 build
+
+image.tar
+image.tar.gz
