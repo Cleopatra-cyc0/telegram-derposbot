@@ -11,6 +11,7 @@ import {
 } from "./model.js"
 import enableTrivia from "./trivia.js"
 import { Update, Message } from "telegraf/typings/core/types/typegram"
+import { calculateDaysTillBirthDay } from "./util.js"
 
 const telegramToken = process.env.TG_TOKEN
 const congressusToken = process.env.CONGRESSUS_TOKEN
@@ -60,14 +61,11 @@ const job = new CronJob("5 0 * * *", sendBirthdayMessage)
 async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
   const username = (ctx!.message as Message.TextMessage).text.split(" ")[1]
   try {
-    const birthDate = await getMemberBirthDate(username)
-    const nextBirthDay = new Date(birthDate)
-    nextBirthDay.setFullYear(new Date().getFullYear() + 1)
-    const totalSeconds = nextBirthDay.getTime() - Date.now()
-    const days = Math.floor(totalSeconds / 86400000)
-    const nextAge = Math.abs(new Date(Date.now() - birthDate.getTime()).getFullYear() - 1970) + 1
-    ctx.reply(`Nog ${days} dagen tot hun ${nextAge}e verjaardag`)
+    const birthDate = await getMemberBirthDate(username.toLocaleUpperCase())
+    const { days, age } = calculateDaysTillBirthDay(birthDate)
+    ctx.reply(`Nog ${days} dagen tot hun ${age}e verjaardag`)
   } catch (error) {
+    console.log(error)
     ctx.reply("ja nee")
   }
 }
@@ -85,12 +83,8 @@ const sprangId = process.env.SPRANG_ID
 if (sprangId != null) {
   bot.command("sprang", async ctx => {
     const birthDate = await getMemberBirthDate(sprangId)
-    const nextBirthDay = new Date(birthDate)
-    nextBirthDay.setFullYear(new Date().getFullYear() + 1)
-    const totalSeconds = nextBirthDay.getTime() - Date.now()
-    const days = Math.floor(totalSeconds / 86400000)
-    const nextAge = Math.abs(new Date(Date.now() - birthDate.getTime()).getFullYear() - 1970) + 1
-    ctx.reply(`Nog ${days} dagen tot sprangs ${nextAge}e verjaardag`)
+    const { days, age } = calculateDaysTillBirthDay(birthDate)
+    ctx.reply(`Nog ${days} dagen tot sprangs ${age}e verjaardag`)
   })
 }
 
