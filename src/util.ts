@@ -1,7 +1,7 @@
 import { Context, Telegraf } from "telegraf"
 import { Message, Update } from "telegraf/typings/core/types/typegram"
 import { getBirthdayChats, getBirthDayMembers, getMemberBirthDate } from "./model.js"
-import logger from "./log.js"
+import logger, { track } from "./log.js"
 
 /**
  * Checks whether the provided date is the same date as another
@@ -101,8 +101,13 @@ export async function sendBirthdayMessage(bot: Telegraf, ctx?: Context<Update>) 
   if (ctx) {
     ctx.reply(message)
   } else {
+    const time = track()
     for (const chatId of chats) {
       bot.telegram.sendMessage(chatId, message)
     }
+    logger.info("sent daily birthday", {
+      ...time(),
+      chats,
+    })
   }
 }
