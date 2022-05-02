@@ -94,6 +94,7 @@ if (webHookDomain) {
 }
 
 job.start()
+logger.info("cron job started")
 
 const gracefulStop = (reason: string) => {
   logger.info("Stopping due to kernel signal")
