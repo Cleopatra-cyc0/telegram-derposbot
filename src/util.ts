@@ -84,32 +84,25 @@ export async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
 }
 
 export async function sendBirthdayMessage(bot: Telegraf, ctx?: Context<Update>) {
-  try {
-    const birthDayMembers = await getBirthDayMembers()
-    let message
-    if (birthDayMembers.length === 0) {
-      message = "Helaas is er niemand jarig vandaag"
-    } else if (birthDayMembers.length === 1) {
-      message = `Gefeliciteerd! ${birthDayMembers[0]}!`
-    } else {
-      message = `Gefeliciteerd!`
-      for (const name of birthDayMembers) {
-        message = `${message}\n- ${name}`
-      }
+  const birthDayMembers = await getBirthDayMembers()
+  let message
+  if (birthDayMembers.length === 0) {
+    message = "Helaas is er niemand jarig vandaag"
+  } else if (birthDayMembers.length === 1) {
+    message = `Gefeliciteerd! ${birthDayMembers[0]}!`
+  } else {
+    message = `Gefeliciteerd!`
+    for (const name of birthDayMembers) {
+      message = `${message}\n- ${name}`
     }
-    const chats = await getBirthdayChats()
+  }
+  const chats = await getBirthdayChats()
 
-    if (ctx) {
-      ctx.reply(message)
-    } else {
-      for (const chatId of chats) {
-        bot.telegram.sendMessage(chatId, message)
-      }
+  if (ctx) {
+    ctx.reply(message)
+  } else {
+    for (const chatId of chats) {
+      bot.telegram.sendMessage(chatId, message)
     }
-  } catch (error) {
-    if (ctx != null) {
-      ctx.reply("Ging wat mis ja")
-    }
-    logger.error(error)
   }
 }

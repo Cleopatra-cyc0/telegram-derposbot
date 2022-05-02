@@ -1,12 +1,12 @@
 import Knex from "knex"
 import { ErrorType, IsSameDate, MyError } from "./util.js"
-import logger from "./log.js"
+import logger, { track } from "./log.js"
 import fetch, { FetchError } from "node-fetch"
 
 const dbConnctionString = process.env.DB_CONNECTION
 
 if (!dbConnctionString) {
-  logger.error("No database connection string provided, exiting")
+  logger.fatal("No database connection string provided, exiting")
   process.exit(3)
 }
 
@@ -21,10 +21,13 @@ export function getBirthdayChats(): Promise<number[]> {
 }
 
 function getChatsByType(type: ChatType) {
-  return knex("chats")
+  const time = track()
+  const res = knex("chats")
     .where("type", type)
     .select("tg_id")
     .then(rows => rows.map(row => row.tg_id as number))
+  logger.debug("knex: chats-by-type", { chatType: type, ...time() })
+  return res
 }
 
 export enum ChatType {
@@ -33,24 +36,29 @@ export enum ChatType {
 }
 
 export async function persistChatInfo(chatId: number, type: ChatType) {
+  const time = track()
   await knex("chats").insert({
     tg_id: chatId.toString(),
     type,
   })
+  logger.debug("knex: persist-chat", { ...time() })
 }
 
 export async function removeChatInfo(chatId: number, type: ChatType) {
+  const time = track()
   await knex("chats")
     .where({
       tg_id: chatId,
       type,
     })
     .delete()
+  logger.debug("knex: remove-chat", time())
 }
 
 const congressusToken = process.env.CONGRESSUS_TOKEN
 
 async function fetchBirthdayMembers() {
+  const time = track()
   // get birthdays
   const body = await fetch("https://api.congressus.nl/v20/members", {
     headers: {
@@ -58,9 +66,11 @@ async function fetchBirthdayMembers() {
     },
   }).then(res => res.json() as Promise<CongressusMember[]>)
 
-  return body
+  const result = body
     .filter(m => m.show_almanac_date_of_birth && IsSameDate(m.date_of_birth))
     .map(m => `${m.first_name} ${m.primary_last_name_prefix} ${m.primary_last_name_main}`)
+  logger.debug("congressus: fetch-all-birthdays", time())
+  return result
 }
 
 const birthdayCache: { date: Date | null; cache: string[] } = {
@@ -79,6 +89,7 @@ export async function getBirthDayMembers() {
 
 export async function getMemberBirthDate(username: string, retry: number = 0): Promise<Date> {
   try {
+    const time = track()
     const res = await fetch(`https://api.congressus.nl/v20/members?username=${username}`, {
       headers: {
         Authorization: `Bearer:${congressusToken}`,
@@ -88,11 +99,13 @@ export async function getMemberBirthDate(username: string, retry: number = 0): P
       const body = (await res.json()) as CongressusMember[]
       if (body.length > 0) {
         if (body[0].show_almanac_date_of_birth) {
+          logger.debug("congressus: fetch-single-birthday", time())
           return new Date(body[0].date_of_birth)
         } else {
           throw new MyError(ErrorType.PrivateInformation)
         }
       } else {
+        logger.error("congressus member not found", time())
         throw new MyError(ErrorType.MemberNotFound)
       }
     } else {

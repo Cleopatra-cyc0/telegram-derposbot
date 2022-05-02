@@ -1,7 +1,7 @@
 import "dotenv/config"
 import { Telegraf } from "telegraf"
 import { CronJob } from "cron"
-import logger from "./log.js"
+import logger, { track } from "./log.js"
 import { ChatType, getStatusChats, persistChatInfo, removeChatInfo } from "./model.js"
 import enableTrivia from "./trivia.js"
 import { sendBirthdayMessage, sendDaysToBirthdayMessage } from "./util.js"
@@ -11,17 +11,33 @@ const congressusToken = process.env.CONGRESSUS_TOKEN
 const webHookDomain = process.env.WEBHOOK_DOMAIN
 
 if (!telegramToken) {
-  logger.error("No telegram token provided, exiting")
+  logger.fatal("No telegram token provided, exiting")
   process.exit(1)
 }
 
 if (!congressusToken) {
-  logger.error("No congressus token provided, exiting")
+  logger.fatal("No congressus token provided, exiting")
   process.exit(2)
 }
 
 // Create bot
 const bot = new Telegraf(telegramToken)
+
+bot.on("message", async (ctx, next) => {
+  const time = track()
+  let possibleError: unknown = undefined
+  try {
+    await next()
+  } catch (error) {
+    possibleError = error
+    ctx.reply("Ja ging niet lekker")
+  }
+  logger.info(possibleError != null ? "uncaught error during message" : "message", {
+    message: ctx.message,
+    ...time(),
+    error: possibleError,
+  })
+})
 
 // Create cronjob to run every day at 00:05
 const job = new CronJob("5 0 * * *", () => sendBirthdayMessage(bot))
@@ -45,14 +61,14 @@ bot.command("isdebaropen", ctx => {
 
 bot.start(async ctx => {
   await persistChatInfo(ctx.chat.id, ChatType.Birthday)
-  ctx.reply("I will now announce birthdays at 00:05")
+  ctx.reply("Ja prima, je hoort het om 00:05")
 })
 bot.command("cancel", async ctx => {
   if (ctx.chat.type === "private" || (await ctx.getChatAdministrators()).map(m => m.user.id).includes(ctx.from.id)) {
     await removeChatInfo(ctx.chat.id, ChatType.Birthday)
-    ctx.reply("K, I'll stop")
+    ctx.reply("joe")
   } else {
-    ctx.reply("hehe nice try")
+    ctx.reply("mag niet")
   }
 })
 
@@ -80,7 +96,7 @@ if (webHookDomain) {
 job.start()
 
 const gracefulStop = (reason: string) => {
-  logger.error("K, bye")
+  logger.info("Stopping due to kernel signal")
   bot.stop(reason)
   job.stop()
 }
