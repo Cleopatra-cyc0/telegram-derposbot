@@ -1,22 +1,22 @@
 import "dotenv/config"
 import { Telegraf } from "telegraf"
 import { CronJob } from "cron"
+import logger from "./log.js"
 import { ChatType, getStatusChats, persistChatInfo, removeChatInfo } from "./model.js"
 import enableTrivia from "./trivia.js"
 import { sendBirthdayMessage, sendDaysToBirthdayMessage } from "./util.js"
 
 const telegramToken = process.env.TG_TOKEN
 const congressusToken = process.env.CONGRESSUS_TOKEN
-const dbConnctionString = process.env.DB_CONNECTION
 const webHookDomain = process.env.WEBHOOK_DOMAIN
 
 if (!telegramToken) {
-  console.error("No telegram token provided, exiting")
+  logger.error("No telegram token provided, exiting")
   process.exit(1)
 }
 
 if (!congressusToken) {
-  console.error("No congressus token provided, exiting")
+  logger.error("No congressus token provided, exiting")
   process.exit(2)
 }
 
@@ -80,7 +80,7 @@ if (webHookDomain) {
 job.start()
 
 const gracefulStop = (reason: string) => {
-  console.error("K, bye")
+  logger.error("K, bye")
   bot.stop(reason)
   job.stop()
 }

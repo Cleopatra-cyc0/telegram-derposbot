@@ -1,11 +1,12 @@
 import Knex from "knex"
 import { ErrorType, IsSameDate, MyError } from "./util.js"
+import logger from "./log.js"
 import fetch, { FetchError } from "node-fetch"
 
 const dbConnctionString = process.env.DB_CONNECTION
 
 if (!dbConnctionString) {
-  console.error("No database connection string provided, exiting")
+  logger.error("No database connection string provided, exiting")
   process.exit(3)
 }
 

@@ -1,6 +1,7 @@
 import { Context, Telegraf } from "telegraf"
 import { Message, Update } from "telegraf/typings/core/types/typegram"
 import { getBirthdayChats, getBirthDayMembers, getMemberBirthDate } from "./model.js"
+import logger from "./log.js"
 
 /**
  * Checks whether the provided date is the same date as another
@@ -76,7 +77,7 @@ export async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
           break
       }
     } else {
-      console.error("ERROR during birthday getting", error)
+      logger.error("ERROR during birthday getting", error)
       ctx.reply("ja nee")
     }
   }
@@ -109,6 +110,6 @@ export async function sendBirthdayMessage(bot: Telegraf, ctx?: Context<Update>) 
     if (ctx != null) {
       ctx.reply("Ging wat mis ja")
     }
-    console.error(error)
+    logger.error(error)
   }
 }
