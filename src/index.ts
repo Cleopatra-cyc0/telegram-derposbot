@@ -5,6 +5,8 @@ import logger, { track } from "./log.js"
 import { ChatType, getStatusChats, persistChatInfo, removeChatInfo } from "./model.js"
 import enableTrivia from "./trivia.js"
 import { sendBirthdayMessage, sendDaysToBirthdayMessage } from "./util.js"
+import { Settings } from "luxon"
+Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
 const congressusToken = process.env.CONGRESSUS_TOKEN
@@ -40,7 +42,13 @@ bot.on("message", async (ctx, next) => {
 })
 
 // Create cronjob to run every day at 00:05
-const job = new CronJob("5 0 * * *", () => sendBirthdayMessage(bot))
+const job = new CronJob(
+  "0 5 0 * * *",
+  () => sendBirthdayMessage(bot),
+  undefined,
+  undefined,
+  process.env.TIMEZONE ?? "Europe/Amsterdam",
+)
 
 bot.command("birthday", async ctx => {
   if (ctx.message.text.trim().split(" ").length === 1) {

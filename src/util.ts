@@ -2,6 +2,7 @@ import { Context, Telegraf } from "telegraf"
 import { Message, Update } from "telegraf/typings/core/types/typegram"
 import { getBirthdayChats, getBirthDayMembers, getMemberBirthDate } from "./model.js"
 import logger, { track } from "./log.js"
+import { DateTime } from "luxon"
 
 /**
  * Checks whether the provided date is the same date as another
@@ -9,14 +10,14 @@ import logger, { track } from "./log.js"
  * @param two The date to check against. If not provided, today will be used
  * @returns A boolean indicating same date or not
  */
-export function IsSameDate(one: Date | string, two: Date | string = new Date()) {
+export function IsSameDate(one: DateTime | string, two: DateTime | string = DateTime.now()) {
   if (typeof one === "string") {
-    one = new Date(one)
+    one = DateTime.fromISO(one)
   }
   if (typeof two === "string") {
-    two = new Date(two)
+    two = DateTime.fromISO(two)
   }
-  return one.getDate() === two.getDate() && one.getMonth() === two.getMonth()
+  return one.hasSame(two, "day") && one.hasSame(two, "month")
 }
 
 /**

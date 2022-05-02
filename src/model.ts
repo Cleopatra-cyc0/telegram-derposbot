@@ -2,6 +2,7 @@ import Knex from "knex"
 import { ErrorType, IsSameDate, MyError } from "./util.js"
 import logger, { track } from "./log.js"
 import fetch, { FetchError } from "node-fetch"
+import { DateTime } from "luxon"
 
 const dbConnctionString = process.env.DB_CONNECTION
 
@@ -73,7 +74,7 @@ async function fetchBirthdayMembers() {
   return result
 }
 
-const birthdayCache: { date: Date | null; cache: string[] } = {
+const birthdayCache: { date: DateTime | null; cache: string[] } = {
   date: null,
   cache: [],
 }
@@ -81,7 +82,7 @@ const birthdayCache: { date: Date | null; cache: string[] } = {
 export async function getBirthDayMembers() {
   if (birthdayCache.date == null || !IsSameDate(birthdayCache.date)) {
     birthdayCache.cache = await fetchBirthdayMembers()
-    birthdayCache.date = new Date()
+    birthdayCache.date = DateTime.now()
   }
 
   return birthdayCache.cache
