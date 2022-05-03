@@ -2,13 +2,13 @@ import "dotenv/config"
 import { Context, Telegraf } from "telegraf"
 import { CronJob } from "cron"
 import logger, { track } from "./log"
-import { ChatType, getStatusChats, persistChatInfo, removeChatInfo } from "./model"
 import enableTrivia from "./trivia"
 import { sendBirthdayMessage, sendDaysToBirthdayMessage } from "./util"
 import { Settings } from "luxon"
 import { EntityManager } from "@mikro-orm/core"
 import { PostgreSqlDriver } from "@mikro-orm/postgresql"
 import db from "./database"
+import ChatSubscription, { SubScriptionType } from "./entities/ChatSubscription"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -84,27 +84,29 @@ bot.command("isdebaropen", ctx => {
 })
 
 bot.start(async ctx => {
-  await persistChatInfo(ctx.chat.id, ChatType.Birthday)
-  ctx.reply("Ja prima, je hoort het om 00:05")
+  const type = SubScriptionType.Birthday // TODO: make this a command arg
+  if ((await ctx.db.count(ChatSubscription, { telegramChatId: ctx.chat.id.toString(), type })) === 0) {
+    const sub = new ChatSubscription(ctx.chat.id.toString(), type)
+    ctx.db.persist(sub)
+    ctx.reply("Ja prima, je hoort het om 00:05")
+  } else {
+    ctx.reply("Was al")
+  }
 })
 bot.command("cancel", async ctx => {
-  if (ctx.chat.type === "private" || (await ctx.getChatAdministrators()).map(m => m.user.id).includes(ctx.from.id)) {
-    await removeChatInfo(ctx.chat.id, ChatType.Birthday)
-    ctx.reply("joe")
+  const type = SubScriptionType.Birthday // TODO: make this a command arg
+  if (ctx.chat.type === "private" || (await ctx.getChatMember(ctx.from.id)).status === "administrator") {
+    const sub = await ctx.db.findOne(ChatSubscription, { type, telegramChatId: ctx.chat.id.toString() })
+    if (sub != null) {
+      ctx.db.remove(sub)
+      ctx.reply("joe")
+    } else {
+      ctx.reply("Was al niet joh")
+    }
   } else {
     ctx.reply("mag niet")
   }
 })
-
-getStatusChats()
-  .then(async (chatIds: number[]) => {
-    const time = track()
-    await Promise.all(chatIds.map(id => bot.telegram.sendMessage(id, "I just came online")))
-    logger.debug({ ...time(), chatIds }, "sent start status messages")
-  })
-  .catch(error => {
-    logger.error({ error }, "error while sending status chats")
-  })
 
 enableTrivia(bot)
 
@@ -118,7 +120,12 @@ if (webHookDomain) {
   })
 } else {
   // No webhook domain, launch with polling
-  bot.launch()
+  bot
+    .launch()
+    .then(() => db)
+    .then(({ em }) => em.fork().find(ChatSubscription, { type: SubScriptionType.Status }))
+    .then(subs => Promise.all(subs.map(s => bot.telegram.sendMessage(s.telegramChatId, "Ben er weer"))))
+    .catch(error => logger.error({ error }, "failed sending start status"))
 }
 
 job.start()
