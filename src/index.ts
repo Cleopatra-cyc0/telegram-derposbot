@@ -80,10 +80,14 @@ bot.command("cancel", async ctx => {
   }
 })
 
-getStatusChats().then((chatIds: number[]) => {
-  for (const chatId of chatIds) {
-    bot.telegram.sendMessage(chatId, "I just came online")
-  }
+getStatusChats()
+  .then(async (chatIds: number[]) => {
+    const time = track()
+    await Promise.all(chatIds.map(id => bot.telegram.sendMessage(id + 1, "I just came online")))
+    logger.debug({ ...time(), chatIds }, "sent start status messages")
+  })
+  .catch(error => {
+    logger.error({ error }, "error while sending status chats")
 })
 
 enableTrivia(bot)
