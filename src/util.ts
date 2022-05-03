@@ -28,12 +28,12 @@ export function IsSameDate(one: DateTime | string, two: DateTime | string = Date
  * @param birthDate The date someone was born
  */
 function calculateDaysTillBirthDay(birthDate: DateTime): { days: number; age: number } {
-  const nextBirthDay = birthDate.set({ year: DateTime.now().year })
+  let nextBirthDay = birthDate.set({ year: DateTime.now().year })
   // Calculate next birthday requires logic for checking if birthday has passed
   //nextBirthDay.setFullYear(new Date().getFullYear() + 1)
   const now = DateTime.now()
   if (now > nextBirthDay) {
-    nextBirthDay.plus({ year: 1 })
+    nextBirthDay = nextBirthDay.plus({ year: 1 })
   }
   const days = Math.floor(Interval.fromDateTimes(now, nextBirthDay).length("days") + 1)
   const nextAge = Math.ceil(Interval.fromDateTimes(birthDate, now).length("year"))
