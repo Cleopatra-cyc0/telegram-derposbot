@@ -1,17 +1,7 @@
-import Knex from "knex"
-import { ErrorType, IsSameDate, MyError } from "./util.js"
-import logger, { track } from "./log.js"
+import { ErrorType, IsSameDate, MyError } from "./util"
+import logger, { track } from "./log"
 import fetch, { FetchError } from "node-fetch"
 import { DateTime } from "luxon"
-
-const dbConnctionString = process.env.DB_CONNECTION
-
-if (!dbConnctionString) {
-  logger.fatal("No database connection string provided, exiting")
-  process.exit(3)
-}
-
-const knex = Knex(dbConnctionString)
 
 export function getStatusChats(): Promise<number[]> {
   return getChatsByType(ChatType.Status)
