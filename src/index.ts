@@ -3,7 +3,7 @@ import { Context, Telegraf } from "telegraf"
 import { CronJob } from "cron"
 import logger, { track } from "./log"
 import enableTrivia from "./trivia"
-import { sendBirthdayMessage, sendDaysToBirthdayMessage } from "./util"
+import { enumKeys, sendBirthdayMessage, sendDaysToBirthdayMessage } from "./util"
 import { Settings } from "luxon"
 import { EntityManager } from "@mikro-orm/core"
 import { PostgreSqlDriver } from "@mikro-orm/postgresql"
@@ -84,17 +84,33 @@ bot.command("isdebaropen", ctx => {
 })
 
 bot.start(async ctx => {
-  const type = SubScriptionType.Birthday // TODO: make this a command arg
+  const typeRaw = ctx.message.text.split(" ")[1].toLowerCase()
+  let type: SubScriptionType | null = null
+  for (const key of enumKeys(SubScriptionType)) {
+    if (typeRaw === SubScriptionType[key]) {
+      type = typeRaw
+      break
+    }
+  }
+  type = type ?? SubScriptionType.Birthday
   if ((await ctx.db.count(ChatSubscription, { telegramChatId: ctx.chat.id.toString(), type })) === 0) {
     const sub = new ChatSubscription(ctx.chat.id.toString(), type)
     ctx.db.persist(sub)
-    ctx.reply("Ja prima, je hoort het om 00:05")
+    ctx.reply(`Ja prima${type === SubScriptionType.Birthday ? ", je hoort het om 00:05" : ""}`)
   } else {
     ctx.reply("Was al")
   }
 })
 bot.command("cancel", async ctx => {
-  const type = SubScriptionType.Birthday // TODO: make this a command arg
+  const typeRaw = ctx.message.text.split(" ")[1].toLowerCase()
+  let type: SubScriptionType | null = null
+  for (const key of enumKeys(SubScriptionType)) {
+    if (typeRaw === SubScriptionType[key]) {
+      type = typeRaw
+      break
+    }
+  }
+  type = type ?? SubScriptionType.Birthday
   if (ctx.chat.type === "private" || (await ctx.getChatMember(ctx.from.id)).status === "administrator") {
     const sub = await ctx.db.findOne(ChatSubscription, { type, telegramChatId: ctx.chat.id.toString() })
     if (sub != null) {
