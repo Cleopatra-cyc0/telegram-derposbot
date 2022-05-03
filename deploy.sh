@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
+docker rmi derposbot:latest
 set -e
-docker rmi derposbot:latest &
 docker build -t derposbot:latest .
 docker save -o ./image.tar derposbot:latest
 gzip ./image.tar
