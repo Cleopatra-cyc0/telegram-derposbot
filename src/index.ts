@@ -135,6 +135,7 @@ const gracefulStop = (reason: string) => {
   logger.info("Stopping due to kernel signal")
   bot.stop(reason)
   job.stop()
+  process.exit(0)
 }
 
 // Enable gracefull bot stopping with ctrl-c
