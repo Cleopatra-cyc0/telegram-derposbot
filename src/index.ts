@@ -84,7 +84,7 @@ bot.command("isdebaropen", ctx => {
 })
 
 bot.start(async ctx => {
-  const typeRaw = ctx.message.text.split(" ")[1].toLowerCase()
+  const typeRaw = ctx.message.text.split(" ")[1]?.toLowerCase()
   let type: SubScriptionType | null = null
   for (const key of enumKeys(SubScriptionType)) {
     if (typeRaw === SubScriptionType[key]) {
@@ -102,7 +102,7 @@ bot.start(async ctx => {
   }
 })
 bot.command("cancel", async ctx => {
-  const typeRaw = ctx.message.text.split(" ")[1].toLowerCase()
+  const typeRaw = ctx.message.text.split(" ")[1]?.toLowerCase()
   let type: SubScriptionType | null = null
   for (const key of enumKeys(SubScriptionType)) {
     if (typeRaw === SubScriptionType[key]) {
