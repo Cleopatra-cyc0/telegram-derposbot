@@ -5,7 +5,9 @@
   "type": "commonjs",
   "main": "src/index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start:dev": "ts-node src/index.ts | pino-pretty",
+    "start": "npm run start:prod",
+    "start:prod": "node build/index.js",
     "build": "tsc"
   },
   "dependencies": {
@@ -32,6 +34,7 @@
     "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-promise": "^6.0.0",
+    "pino-pretty": "^7.6.1",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.4"
   },
