@@ -12,7 +12,10 @@ if (!dbConnctionString) {
 
 const db = (async () => {
   const db = await MikroORM.init<PostgreSqlDriver>(ormOptions)
-  await db.getMigrator().up() // Ensure migrations are done before use of database
+  const migrationsRun = await db.getMigrator().up() // Ensure migrations are done before use of database
+  if (migrationsRun.length > 0) {
+    logger.info({ migrationAmount: migrationsRun.length }, "mirko-orm ran migrations on startup")
+  }
   return db
 })()
 
