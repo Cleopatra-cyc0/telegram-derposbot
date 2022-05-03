@@ -6,6 +6,7 @@ import { ChatType, getStatusChats, persistChatInfo, removeChatInfo } from "./mod
 import enableTrivia from "./trivia.js"
 import { sendBirthdayMessage, sendDaysToBirthdayMessage } from "./util.js"
 import { Settings } from "luxon"
+import speedtest from "speedtest-net"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -21,6 +22,27 @@ if (!congressusToken) {
   logger.fatal("No congressus token provided, exiting")
   process.exit(2)
 }
+
+// Run speedtests for debugging
+const speedtestJob = new CronJob(" * /10 * * * *", async () => {
+  try {
+    const speed = await speedtest()
+    logger.debug(
+      {
+        speedTest: {
+          download: speed.download.bandwidth,
+          upload: speed.upload.bandwidth,
+          ping: speed.ping.latency,
+        },
+      },
+      "speedtest",
+    )
+  } catch (error) {
+    logger.warn({ error }, "speedtest error")
+  }
+})
+
+speedtestJob.start()
 
 // Create bot
 const bot = new Telegraf(telegramToken)
