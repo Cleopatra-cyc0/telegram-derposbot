@@ -2,7 +2,7 @@ import { Context, Telegraf } from "telegraf"
 import { Message, Update } from "telegraf/typings/core/types/typegram"
 import { getBirthdayChats, getBirthDayMembers, getMemberBirthDate } from "./model.js"
 import logger, { track } from "./log.js"
-import { DateTime } from "luxon"
+import { DateTime, Interval } from "luxon"
 
 /**
  * Checks whether the provided date is the same date as another
@@ -24,22 +24,16 @@ export function IsSameDate(one: DateTime | string, two: DateTime | string = Date
  * Calculate the amount of days untill someone's birthday and also what age they'll turn
  * @param birthDate The date someone was born
  */
-function calculateDaysTillBirthDay(birthDate: Date): { days: number; age: number } {
-  const nextBirthDay = new Date(birthDate)
+function calculateDaysTillBirthDay(birthDate: DateTime): { days: number; age: number } {
+  const nextBirthDay = birthDate.set({ year: DateTime.now().year })
   // Calculate next birthday requires logic for checking if birthday has passed
   //nextBirthDay.setFullYear(new Date().getFullYear() + 1)
-  const now = new Date()
-  if (
-    now.getMonth() > birthDate.getMonth() ||
-    (now.getMonth() === birthDate.getMonth() && now.getDate() > birthDate.getDate())
-  ) {
-    nextBirthDay.setFullYear(new Date().getFullYear() + 1)
-  } else {
-    nextBirthDay.setFullYear(new Date().getFullYear())
+  const now = DateTime.now()
+  if (now > nextBirthDay) {
+    nextBirthDay.plus({ year: 1 })
   }
-  const totalSeconds = nextBirthDay.getTime() - Date.now()
-  const days = Math.ceil(totalSeconds / 86400000)
-  const nextAge = Math.abs(new Date(Date.now() - birthDate.getTime()).getFullYear() - 1970) + 1
+  const days = Math.floor(Interval.fromDateTimes(now, nextBirthDay).length("days") + 1)
+  const nextAge = Math.ceil(Interval.fromDateTimes(birthDate, now).length("year"))
   return { days, age: nextAge }
 }
 
