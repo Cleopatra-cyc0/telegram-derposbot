@@ -34,11 +34,14 @@ bot.on("message", async (ctx, next) => {
     possibleError = error as Error
     ctx.reply("Ja ging niet lekker")
   }
-  logger.info(possibleError != null ? "uncaught error during message" : "message", {
-    message: ctx.message,
-    ...time(),
-    error: possibleError,
-  })
+  logger.info(
+    {
+      message: ctx.message,
+      ...time(),
+      error: possibleError,
+    },
+    possibleError != null ? "uncaught error during message" : "message",
+  )
 })
 
 // Create cronjob to run every day at 00:05
@@ -88,7 +91,7 @@ getStatusChats()
   })
   .catch(error => {
     logger.error({ error }, "error while sending status chats")
-})
+  })
 
 enableTrivia(bot)
 

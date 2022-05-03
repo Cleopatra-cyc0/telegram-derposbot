@@ -27,6 +27,7 @@ function getChatsByType(type: ChatType) {
     .where("type", type)
     .select("tg_id")
     .then(rows => rows.map(row => parseInt(row.tg_id)))
+  logger.debug({ chatType: type, ...time() }, "knex: chats-by-type")
   return res
 }
 
@@ -41,7 +42,7 @@ export async function persistChatInfo(chatId: number, type: ChatType) {
     tg_id: chatId.toString(),
     type,
   })
-  logger.debug("knex: persist-chat", { ...time() })
+  logger.debug(time(), "knex: persist-chat")
 }
 
 export async function removeChatInfo(chatId: number, type: ChatType) {
@@ -52,7 +53,7 @@ export async function removeChatInfo(chatId: number, type: ChatType) {
       type,
     })
     .delete()
-  logger.debug("knex: remove-chat", time())
+  logger.debug(time(), "knex: remove-chat")
 }
 
 const congressusToken = process.env.CONGRESSUS_TOKEN

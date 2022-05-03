@@ -72,7 +72,7 @@ export async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
           break
       }
     } else {
-      logger.error("ERROR during birthday getting", error)
+      logger.error({ error }, "ERROR during birthday getting")
       ctx.reply("ja nee")
     }
   }
@@ -100,9 +100,12 @@ export async function sendBirthdayMessage(bot: Telegraf, ctx?: Context<Update>) 
     for (const chatId of chats) {
       bot.telegram.sendMessage(chatId, message)
     }
-    logger.info("sent daily birthday", {
-      ...time(),
-      chats,
-    })
+    logger.info(
+      {
+        ...time(),
+        chats,
+      },
+      "sent daily birthday",
+    )
   }
 }
