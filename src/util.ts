@@ -1,8 +1,11 @@
-import { Context, Telegraf } from "telegraf"
-import { Message, Update } from "telegraf/typings/core/types/typegram"
-import { getBirthdayChats, getBirthDayMembers, getMemberBirthDate } from "./model"
+import { Telegraf } from "telegraf"
+import { Message } from "telegraf/typings/core/types/typegram"
+import { getBirthDayMembers, getMemberBirthDate } from "./model"
 import logger, { track } from "./log"
 import { DateTime, Interval } from "luxon"
+import { MyContext } from "."
+import ChatSubscription, { SubScriptionType } from "./entities/ChatSubscription"
+import db from "./database"
 
 /**
  * Checks whether the provided date is the same date as another
@@ -52,7 +55,7 @@ export class MyError extends Error {
   }
 }
 
-export async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
+export async function sendDaysToBirthdayMessage(ctx: MyContext) {
   const username = (ctx.message as Message.TextMessage).text.split(" ")[1]
   try {
     const birthDate = await getMemberBirthDate(username.toLocaleUpperCase())
@@ -78,7 +81,7 @@ export async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
   }
 }
 
-export async function sendBirthdayMessage(bot: Telegraf, ctx?: Context<Update>) {
+export async function sendBirthdayMessage(bot: Telegraf<MyContext>, ctx?: MyContext) {
   const birthDayMembers = await getBirthDayMembers()
   let message
   if (birthDayMembers.length === 0) {
@@ -91,14 +94,21 @@ export async function sendBirthdayMessage(bot: Telegraf, ctx?: Context<Update>) 
       message = `${message}\n- ${name}`
     }
   }
-  const chats = await getBirthdayChats()
+  let chatSubRepo
+  if (ctx != null) {
+    chatSubRepo = ctx.db.getRepository(ChatSubscription)
+  } else {
+    chatSubRepo = (await db).em.fork().getRepository(ChatSubscription)
+  }
+
+  const chats = await chatSubRepo.find({ type: SubScriptionType.Birthday })
 
   if (ctx) {
     ctx.reply(message)
   } else {
     const time = track()
-    for (const chatId of chats) {
-      bot.telegram.sendMessage(chatId, message)
+    for (const { telegramChatId } of chats) {
+      bot.telegram.sendMessage(telegramChatId, message)
     }
     logger.info(
       {

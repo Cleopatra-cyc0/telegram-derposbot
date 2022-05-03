@@ -1,6 +1,6 @@
 import { MikroORM } from "@mikro-orm/core"
 import { PostgreSqlDriver } from "@mikro-orm/postgresql"
-import logger from "./log.js"
+import logger from "./log"
 import ormOptions from "./mikro-orm.config"
 
 const dbConnctionString = process.env.DB_CONNECTION

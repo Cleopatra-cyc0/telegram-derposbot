@@ -19,6 +19,7 @@ const config: Options<PostgreSqlDriver> = {
   migrations: {
     path: "build/migrations",
     pathTs: "src/migrations",
+    disableForeignKeys: false,
   },
   debug: true,
   logger: msg => logger.trace({ mikroOrm: msg }, "micro-orm"),

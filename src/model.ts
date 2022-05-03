@@ -3,49 +3,6 @@ import logger, { track } from "./log"
 import fetch, { FetchError } from "node-fetch"
 import { DateTime } from "luxon"
 
-export function getStatusChats(): Promise<number[]> {
-  return getChatsByType(ChatType.Status)
-}
-
-export function getBirthdayChats(): Promise<number[]> {
-  return getChatsByType(ChatType.Birthday)
-}
-
-function getChatsByType(type: ChatType) {
-  const time = track()
-  const res = knex("chats")
-    .where("type", type)
-    .select("tg_id")
-    .then(rows => rows.map(row => parseInt(row.tg_id)))
-  logger.debug({ chatType: type, ...time() }, "knex: chats-by-type")
-  return res
-}
-
-export enum ChatType {
-  Status = "status",
-  Birthday = "birthday",
-}
-
-export async function persistChatInfo(chatId: number, type: ChatType) {
-  const time = track()
-  await knex("chats").insert({
-    tg_id: chatId.toString(),
-    type,
-  })
-  logger.debug(time(), "knex: persist-chat")
-}
-
-export async function removeChatInfo(chatId: number, type: ChatType) {
-  const time = track()
-  await knex("chats")
-    .where({
-      tg_id: chatId,
-      type,
-    })
-    .delete()
-  logger.debug(time(), "knex: remove-chat")
-}
-
 const congressusToken = process.env.CONGRESSUS_TOKEN
 export type CongressusMember = {
   id: 0
