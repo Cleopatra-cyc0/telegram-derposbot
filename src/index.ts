@@ -149,10 +149,11 @@ botLaunchPromise
 job.start()
 logger.info("cron job started")
 
-const gracefulStop = (reason: string) => {
+const gracefulStop = async (reason: string) => {
   logger.info("Stopping due to kernel signal")
   bot.stop(reason)
   job.stop()
+  await (await db).close(true)
   process.exit(0)
 }
 

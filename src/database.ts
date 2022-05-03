@@ -10,6 +10,10 @@ if (!dbConnctionString) {
   process.exit(3)
 }
 
-const db = MikroORM.init<PostgreSqlDriver>(ormOptions)
+const db = (async () => {
+  const db = await MikroORM.init<PostgreSqlDriver>(ormOptions)
+  await db.getMigrator().up() // Ensure migrations are done before use of database
+  return db
+})()
 
 export default db
