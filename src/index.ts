@@ -110,9 +110,11 @@ bot.command("cancel", async ctx => {
 
 enableTrivia(bot)
 
+let botLaunchPromise
+
 if (webHookDomain) {
   // launch with webhook
-  bot.launch({
+  botLaunchPromise = bot.launch({
     webhook: {
       domain: webHookDomain,
       port: 80,
@@ -120,13 +122,13 @@ if (webHookDomain) {
   })
 } else {
   // No webhook domain, launch with polling
-  bot
-    .launch()
-    .then(() => db)
-    .then(({ em }) => em.fork().find(ChatSubscription, { type: SubScriptionType.Status }))
-    .then(subs => Promise.all(subs.map(s => bot.telegram.sendMessage(s.telegramChatId, "Ben er weer"))))
-    .catch(error => logger.error({ error }, "failed sending start status"))
+  botLaunchPromise = bot.launch()
 }
+botLaunchPromise
+  .then(() => db)
+  .then(({ em }) => em.fork().find(ChatSubscription, { type: SubScriptionType.Status }))
+  .then(subs => Promise.all(subs.map(s => bot.telegram.sendMessage(s.telegramChatId, "Ben er weer"))))
+  .catch(error => logger.error({ error }, "failed sending start status"))
 
 job.start()
 logger.info("cron job started")
