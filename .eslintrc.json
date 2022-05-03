@@ -1,0 +1,9 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "extends": ["plugin:promise/recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+  "rules": {
+    "promise/always-return": "off"
+  }
+}

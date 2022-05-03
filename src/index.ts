@@ -27,11 +27,11 @@ const bot = new Telegraf(telegramToken)
 
 bot.on("message", async (ctx, next) => {
   const time = track()
-  let possibleError: unknown = undefined
+  let possibleError: Error | undefined
   try {
     await next()
   } catch (error) {
-    possibleError = error
+    possibleError = error as Error
     ctx.reply("Ja ging niet lekker")
   }
   logger.info(possibleError != null ? "uncaught error during message" : "message", {

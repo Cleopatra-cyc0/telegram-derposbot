@@ -59,7 +59,7 @@ export class MyError extends Error {
 }
 
 export async function sendDaysToBirthdayMessage(ctx: Context<Update>) {
-  const username = (ctx!.message as Message.TextMessage).text.split(" ")[1]
+  const username = (ctx.message as Message.TextMessage).text.split(" ")[1]
   try {
     const birthDate = await getMemberBirthDate(username.toLocaleUpperCase())
     const { days, age } = calculateDaysTillBirthDay(birthDate)
