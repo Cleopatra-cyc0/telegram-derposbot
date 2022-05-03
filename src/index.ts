@@ -86,7 +86,7 @@ bot.command("cancel", async ctx => {
 getStatusChats()
   .then(async (chatIds: number[]) => {
     const time = track()
-    await Promise.all(chatIds.map(id => bot.telegram.sendMessage(id + 1, "I just came online")))
+    await Promise.all(chatIds.map(id => bot.telegram.sendMessage(id, "I just came online")))
     logger.debug({ ...time(), chatIds }, "sent start status messages")
   })
   .catch(error => {
