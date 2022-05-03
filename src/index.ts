@@ -1,11 +1,14 @@
 import "dotenv/config"
-import { Telegraf } from "telegraf"
+import { Context, Telegraf } from "telegraf"
 import { CronJob } from "cron"
 import logger, { track } from "./log"
 import { ChatType, getStatusChats, persistChatInfo, removeChatInfo } from "./model"
 import enableTrivia from "./trivia"
 import { sendBirthdayMessage, sendDaysToBirthdayMessage } from "./util"
 import { Settings } from "luxon"
+import { EntityManager } from "@mikro-orm/core"
+import { PostgreSqlDriver } from "@mikro-orm/postgresql"
+import db from "./database"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -22,8 +25,12 @@ if (!congressusToken) {
   process.exit(2)
 }
 
+export interface MyContext extends Context {
+  db: EntityManager<PostgreSqlDriver>
+}
+
 // Create bot
-const bot = new Telegraf(telegramToken)
+const bot = new Telegraf<MyContext>(telegramToken)
 
 bot.on("message", async (ctx, next) => {
   const time = track()
@@ -42,6 +49,12 @@ bot.on("message", async (ctx, next) => {
     },
     possibleError != null ? "uncaught error during message" : "message",
   )
+})
+
+bot.use(async (ctx, next) => {
+  ctx.db = (await db).em.fork()
+  await next()
+  ctx.db.flush()
 })
 
 // Create cronjob to run every day at 00:05

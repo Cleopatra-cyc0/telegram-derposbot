@@ -11,3 +11,5 @@ if (!dbConnctionString) {
 }
 
 const db = MikroORM.init<PostgreSqlDriver>(ormOptions)
+
+export default db
