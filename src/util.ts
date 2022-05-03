@@ -1,7 +1,7 @@
 import { Context, Telegraf } from "telegraf"
 import { Message, Update } from "telegraf/typings/core/types/typegram"
-import { getBirthdayChats, getBirthDayMembers, getMemberBirthDate } from "./model.js"
-import logger, { track } from "./log.js"
+import { getBirthdayChats, getBirthDayMembers, getMemberBirthDate } from "./model"
+import logger, { track } from "./log"
 import { DateTime, Interval } from "luxon"
 
 /**

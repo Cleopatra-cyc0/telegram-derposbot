@@ -1,6 +1,7 @@
 import { Options } from "@mikro-orm/core"
 import { PostgreSqlDriver } from "@mikro-orm/postgresql"
 import { TsMorphMetadataProvider } from "@mikro-orm/reflection"
+import logger from "./log"
 
 const dbConnctionString = process.env.DB_CONNECTION
 
@@ -19,6 +20,8 @@ const config: Options<PostgreSqlDriver> = {
     path: "build/migrations",
     pathTs: "src/migrations",
   },
+  debug: true,
+  logger: msg => logger.trace({ mikroOrm: msg }, "micro-orm"),
 }
 
 export default config
