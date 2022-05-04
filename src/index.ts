@@ -43,21 +43,21 @@ bot.on("message", async (ctx, next) => {
   }
   if (possibleError == null) {
     logger.trace(
-    {
-      message: ctx.message,
-      ...time(),
+      {
+        message: ctx.message,
+        ...time(),
       },
       "message",
     )
   } else {
     logger.error(
       {
-      error: possibleError,
+        error: possibleError,
         message: ctx.message,
         ...time(),
-    },
+      },
       "error during message handling",
-  )
+    )
   }
 })
 
@@ -103,10 +103,14 @@ bot.start(async ctx => {
     }
   }
   type = type ?? SubScriptionType.Birthday
-  if ((await ctx.db.count(ChatSubscription, { telegramChatId: ctx.chat.id.toString(), type })) === 0) {
-    const sub = new ChatSubscription(ctx.chat.id.toString(), type)
-    ctx.db.persist(sub)
-    ctx.reply(`Ja prima${type === SubScriptionType.Birthday ? ", je hoort het om 00:05" : ""}`)
+  if (
+    ctx.chat.type === "private" ||
+    ["administrator", "creator"].includes((await ctx.getChatMember(ctx.from.id)).status)
+  ) {
+    if ((await ctx.db.count(ChatSubscription, { telegramChatId: ctx.chat.id.toString(), type })) === 0) {
+      const sub = new ChatSubscription(ctx.chat.id.toString(), type)
+      ctx.db.persist(sub)
+      ctx.reply(`Ja prima${type === SubScriptionType.Birthday ? ", je hoort het om 00:05" : ""}`)
       logger.info(
         {
           chatId: ctx.chat.id,
@@ -115,8 +119,11 @@ bot.start(async ctx => {
         },
         "register subscription",
       )
+    } else {
+      ctx.reply("Was al")
+    }
   } else {
-    ctx.reply("Was al")
+    ctx.reply("mag niet")
   }
 })
 bot.command("cancel", async ctx => {
@@ -129,7 +136,10 @@ bot.command("cancel", async ctx => {
     }
   }
   type = type ?? SubScriptionType.Birthday
-  if (ctx.chat.type === "private" || (await ctx.getChatMember(ctx.from.id)).status === "administrator") {
+  if (
+    ctx.chat.type === "private" ||
+    ["administrator", "creator"].includes((await ctx.getChatMember(ctx.from.id)).status)
+  ) {
     const sub = await ctx.db.findOne(ChatSubscription, { type, telegramChatId: ctx.chat.id.toString() })
     if (sub != null) {
       ctx.db.remove(sub)
