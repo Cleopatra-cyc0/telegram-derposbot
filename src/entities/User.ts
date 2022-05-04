@@ -3,6 +3,10 @@ import Shit from "./Shit"
 
 @Entity()
 export default class User {
+  constructor(telegramId: string) {
+    this.telegramId = telegramId
+  }
+
   @PrimaryKey({
     autoincrement: true,
   })

@@ -9,6 +9,7 @@ import ChatSubscription, { SubScriptionType } from "./entities/ChatSubscription"
 import subscriptionCommands from "./commands/subscription"
 import birthdayCommands from "./commands/birthday"
 import triviaCommands from "./trivia"
+import shitCommands from "./commands/shit"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -70,6 +71,7 @@ bot.use(async (ctx, next) => {
 const stopCronJob = birthdayCommands(bot)
 triviaCommands(bot)
 subscriptionCommands(bot)
+shitCommands(bot)
 
 let botLaunchPromise
 

@@ -53,6 +53,15 @@
           "nullable": false,
           "mappedType": "integer"
         },
+        "date": {
+          "name": "date",
+          "type": "varchar(30)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
         "user_id": {
           "name": "user_id",
           "type": "int",
@@ -88,6 +97,7 @@
             "id"
           ],
           "referencedTableName": "public.user",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       }
