@@ -13,10 +13,12 @@ const pinoTransport =
       }
     : {}
 
-export default Pino({
+const logger = Pino({
   level: process.env.LOG_LEVEL,
   ...pinoTransport,
 })
+
+export default logger
 
 export const track = (): (() => { timeTaken: bigint }) => {
   const start = hrtime.bigint()
