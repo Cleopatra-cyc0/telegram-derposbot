@@ -4,7 +4,7 @@ import logger, { track } from "./log"
 import { Settings } from "luxon"
 import { EntityManager } from "@mikro-orm/core"
 import { PostgreSqlDriver } from "@mikro-orm/postgresql"
-import db from "./database"
+import MikroOrm from "./database"
 import ChatSubscription, { SubScriptionType } from "./entities/ChatSubscription"
 import subscriptionCommands from "./commands/subscription"
 import birthdayCommands from "./commands/birthday"
@@ -62,7 +62,7 @@ bot.on("message", async (ctx, next) => {
 })
 
 bot.use(async (ctx, next) => {
-  ctx.db = (await db).em.fork()
+  ctx.db = (await MikroOrm).em.fork()
   await next()
   ctx.db.flush()
 })
@@ -87,7 +87,7 @@ if (webHookDomain) {
 }
 botLaunchPromise
   .then(() => logger.trace("launch"))
-  .then(() => db)
+  .then(() => MikroOrm)
   .then(({ em }) => em.fork().find(ChatSubscription, { type: SubScriptionType.Status }))
   .then(subs => Promise.all(subs.map(s => bot.telegram.sendMessage(s.telegramChatId, "Ben er weer"))))
   .then(msgs => logger.trace({ chats: msgs.map(m => m.chat.id) }, "sent startup message"))
@@ -97,7 +97,7 @@ const gracefulStop = async (reason: string) => {
   logger.info("Stopping due to kernel signal")
   bot.stop(reason)
   stopCronJob()
-  await (await db).close(true)
+  await (await MikroOrm).close(true)
   process.exit(0)
 }
 

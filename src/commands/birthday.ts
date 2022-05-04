@@ -2,7 +2,7 @@ import { CronJob } from "cron"
 import { Telegraf } from "telegraf"
 import { Message } from "telegraf/typings/core/types/typegram"
 import { MyContext } from ".."
-import db from "../database"
+import MikroOrm from "../database"
 import ChatSubscription, { SubScriptionType } from "../entities/ChatSubscription"
 import logger, { track } from "../log"
 import { getBirthDayMembers, getMemberBirthDate } from "../model"
@@ -48,7 +48,7 @@ async function sendBirthdayMessage(bot: Telegraf<MyContext>, ctx?: MyContext) {
   if (ctx != null) {
     chatSubRepo = ctx.db.getRepository(ChatSubscription)
   } else {
-    chatSubRepo = (await db).em.fork().getRepository(ChatSubscription)
+    chatSubRepo = (await MikroOrm).em.fork().getRepository(ChatSubscription)
   }
 
   const chats = await chatSubRepo.find({ type: SubScriptionType.Birthday })
