@@ -41,14 +41,24 @@ bot.on("message", async (ctx, next) => {
     possibleError = error as Error
     ctx.reply("Ja ging niet lekker")
   }
-  logger.info(
+  if (possibleError == null) {
+    logger.trace(
     {
       message: ctx.message,
       ...time(),
+      },
+      "message",
+    )
+  } else {
+    logger.error(
+      {
       error: possibleError,
+        message: ctx.message,
+        ...time(),
     },
-    possibleError != null ? "uncaught error during message" : "message",
+      "error during message handling",
   )
+  }
 })
 
 bot.use(async (ctx, next) => {
@@ -97,6 +107,14 @@ bot.start(async ctx => {
     const sub = new ChatSubscription(ctx.chat.id.toString(), type)
     ctx.db.persist(sub)
     ctx.reply(`Ja prima${type === SubScriptionType.Birthday ? ", je hoort het om 00:05" : ""}`)
+      logger.info(
+        {
+          chatId: ctx.chat.id,
+          type,
+          chatName: ctx.chat.type === "private" ? `${ctx.from.first_name} ${ctx.from.last_name}` : ctx.chat.title,
+        },
+        "register subscription",
+      )
   } else {
     ctx.reply("Was al")
   }
@@ -115,6 +133,14 @@ bot.command("cancel", async ctx => {
     const sub = await ctx.db.findOne(ChatSubscription, { type, telegramChatId: ctx.chat.id.toString() })
     if (sub != null) {
       ctx.db.remove(sub)
+      logger.info(
+        {
+          chatId: ctx.chat.id,
+          type,
+          chatName: ctx.chat.type === "private" ? `${ctx.from.first_name} ${ctx.from.last_name}` : ctx.chat.title,
+        },
+        "remove subscription",
+      )
       ctx.reply("joe")
     } else {
       ctx.reply("Was al niet joh")
@@ -141,9 +167,11 @@ if (webHookDomain) {
   botLaunchPromise = bot.launch()
 }
 botLaunchPromise
+  .then(() => logger.trace("launch"))
   .then(() => db)
   .then(({ em }) => em.fork().find(ChatSubscription, { type: SubScriptionType.Status }))
   .then(subs => Promise.all(subs.map(s => bot.telegram.sendMessage(s.telegramChatId, "Ben er weer"))))
+  .then(msgs => logger.trace({ chats: msgs.map(m => m.chat.id) }, "sent startup message"))
   .catch(error => logger.error({ error }, "failed sending start status"))
 
 job.start()
