@@ -37,11 +37,16 @@ export default function shitCommands(bot: Telegraf<MyContext>) {
 
   bot.command("poepstats", async ctx => {
     const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id.toString() }, { populate: ["shits"] })
-    if (user != null) {
+    if (user != null && user.shits.length > 0) {
+      const firstPoop = user.shits.getItems().reduce((first, curr) => (curr.date < first.date ? curr : first))
       const count = user.shits.length
       const todayStart = DateTime.now().set({ hour: 0, second: 0, minute: 0 })
       const countToday = user.shits.getItems().filter(shit => shit.date > todayStart).length
-      ctx.reply(`Je hebt al ${count} keer gepoept.\n${countToday} waren vandaag`)
+      ctx.reply(
+        `Je hebt al ${count} keer gepoept sinds ${firstPoop.date.toLocaleString(
+          DateTime.DATE_MED,
+        )}\n${countToday} waren vandaag`,
+      )
     } else {
       ctx.reply("Ik ken jou helemaal niet, flikker op")
     }
