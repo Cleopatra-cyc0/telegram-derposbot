@@ -14,7 +14,7 @@ export function IsSameDate(one: DateTime | string, two: DateTime | string = Date
   if (typeof two === "string") {
     two = DateTime.fromISO(two)
   }
-  return one.hasSame(two, "day") && one.hasSame(two, "month")
+  return one.day === two.day && one.month === two.month
 }
 
 /**
