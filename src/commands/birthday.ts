@@ -54,11 +54,11 @@ async function sendBirthdayMessage(bot: Telegraf<MyContext>, ctx?: MyContext) {
   const chats = await chatSubRepo.find({ type: SubScriptionType.Birthday })
 
   if (ctx) {
-    ctx.reply(message)
+    await ctx.reply(message)
   } else {
     const time = track()
     for (const { telegramChatId } of chats) {
-      bot.telegram.sendMessage(telegramChatId, message)
+      await bot.telegram.sendMessage(telegramChatId, message)
     }
     logger.info(
       {
@@ -80,18 +80,18 @@ async function sendDaysToBirthdayMessage(ctx: MyContext) {
     if (error instanceof MyError) {
       switch (error.type) {
         case ErrorType.MemberNotFound:
-          ctx.reply("Nooit van gehoord die")
+          await ctx.reply("Nooit van gehoord die")
           break
         case ErrorType.PrivateInformation:
-          ctx.reply("Ja dat weet ik niet")
+          await ctx.reply("Ja dat weet ik niet")
           break
         case ErrorType.CongressusNetworkError:
-          ctx.reply("Congressus doet kut")
+          await ctx.reply("Congressus doet kut")
           break
       }
     } else {
       logger.error({ error }, "ERROR during birthday getting")
-      ctx.reply("ja nee")
+      await ctx.reply("ja nee")
     }
   }
 }

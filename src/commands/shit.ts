@@ -18,9 +18,9 @@ export default function shitCommands(bot: Telegraf<MyContext>) {
     logger.trace({ user }, "new shit")
     const count = await ctx.db.count(Shit, { user })
     if (Math.random() > 0.9) {
-      ctx.reply(`Gast doe normaal, al ${count}`)
+      await ctx.reply(`Gast doe normaal, al ${count}`)
     } else {
-      ctx.reply(`Lekker hoor, je ${count}e`)
+      await ctx.reply(`Lekker hoor, je ${count}e`)
     }
   })
 
@@ -29,9 +29,9 @@ export default function shitCommands(bot: Telegraf<MyContext>) {
     if (user != null) {
       const lastShit = user.shits.getItems().reduce((last, curr) => (curr.date > last.date ? curr : last))
       ctx.db.remove(lastShit)
-      ctx.reply("Oke die is weg")
+      await ctx.reply("Oke die is weg")
     } else {
-      ctx.reply("Ik ken jou helemaal niet, flikker op")
+      await ctx.reply("Ik ken jou helemaal niet, flikker op")
     }
   })
 
@@ -42,13 +42,13 @@ export default function shitCommands(bot: Telegraf<MyContext>) {
       const count = user.shits.length
       const todayStart = DateTime.now().set({ hour: 0, second: 0, minute: 0 })
       const countToday = user.shits.getItems().filter(shit => shit.date > todayStart).length
-      ctx.reply(
+      await ctx.reply(
         `Je hebt al ${count} keer gepoept sinds ${firstPoop.date.toLocaleString(
           DateTime.DATE_MED,
         )}\n${countToday} waren vandaag`,
       )
     } else {
-      ctx.reply("Ik ken jou helemaal niet, flikker op")
+      await ctx.reply("Ik ken jou helemaal niet, flikker op")
     }
   })
 }

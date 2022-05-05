@@ -63,12 +63,12 @@ export default function subscriptionCommands(bot: Telegraf<MyContext>) {
           },
           "remove subscription",
         )
-        ctx.reply("joe")
+        await ctx.reply("joe")
       } else {
-        ctx.reply("Was al niet joh")
+        await ctx.reply("Was al niet joh")
       }
     } else {
-      ctx.reply("mag niet")
+      await ctx.reply("mag niet")
     }
   })
 }
