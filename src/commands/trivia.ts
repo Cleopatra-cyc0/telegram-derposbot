@@ -1,5 +1,5 @@
 import { Telegraf } from "telegraf"
-import { MyContext } from "."
+import { MyContext } from ".."
 
 export default function triviaCommands(bot: Telegraf<MyContext>) {
   bot.hears("lul", ctx => {

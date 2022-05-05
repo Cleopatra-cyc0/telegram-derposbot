@@ -8,7 +8,7 @@ import MikroOrm from "./database"
 import ChatSubscription, { SubScriptionType } from "./entities/ChatSubscription"
 import subscriptionCommands from "./commands/subscription"
 import birthdayCommands from "./commands/birthday"
-import triviaCommands from "./trivia"
+import triviaCommands from "./commands/trivia"
 import shitCommands from "./commands/shit"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
