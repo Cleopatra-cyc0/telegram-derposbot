@@ -96,6 +96,9 @@ export async function getBirthDayMembers() {
   if (birthdayCache.date == null || !IsSameDate(birthdayCache.date)) {
     birthdayCache.cache = await fetchBirthdayMembers()
     birthdayCache.date = DateTime.now()
+    logger.trace({ birthdays: birthdayCache.cache }, "birthday cache miss")
+  } else {
+    logger.trace({ birthdays: birthdayCache.cache }, "birthday cache hit")
   }
 
   return birthdayCache.cache
