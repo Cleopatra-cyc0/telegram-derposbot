@@ -27,10 +27,6 @@ export default function triviaCommands(bot: Telegraf<MyContext>) {
     }
   })
 
-  bot.command("raad", async ctx => {
-    await ctx.reply("moeie imeelen")
-  })
-
   bot.command("kopofmunt", async ctx => {
     if (Math.random() >= 0.5) {
       await ctx.reply("kop")
