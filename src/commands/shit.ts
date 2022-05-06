@@ -24,7 +24,7 @@ export default function shitCommands(bot: Telegraf<MyContext>) {
     }
   })
 
-  bot.command("oopsie", async ctx => {
+  bot.command("poepsie", async ctx => {
     const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id.toString() }, { populate: ["shits"] })
     if (user != null) {
       const lastShit = user.shits.getItems().reduce((last, curr) => (curr.date > last.date ? curr : last))
