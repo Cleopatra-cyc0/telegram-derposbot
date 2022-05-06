@@ -1,5 +1,7 @@
 import { Telegraf } from "telegraf"
 import { MyContext } from ".."
+import { getMemberBirthDate } from "../model"
+import { calculateDaysTillBirthDay } from "../util"
 
 export default function triviaCommands(bot: Telegraf<MyContext>) {
   bot.hears("lul", ctx => {
@@ -30,10 +32,16 @@ export default function triviaCommands(bot: Telegraf<MyContext>) {
   })
 
   bot.command("kopofmunt", async ctx => {
-    if (Math.random() > 0.49) {
+    if (Math.random() >= 0.5) {
       await ctx.reply("kop")
     } else {
       await ctx.reply("munt")
     }
+  })
+
+  bot.command("sprang", async ctx => {
+    const birthDate = await getMemberBirthDate("ROSP")
+    const { days, age } = calculateDaysTillBirthDay(birthDate)
+    ctx.reply(`Nog ${days} ${days === 1 ? "dag" : "dagen"} tot sprangs ${age}e verjaardag`)
   })
 }
