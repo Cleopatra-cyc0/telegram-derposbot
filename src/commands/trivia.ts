@@ -34,10 +34,11 @@ export default function triviaCommands(bot: Telegraf<MyContext>) {
       await ctx.reply("munt")
     }
   })
-
-  bot.command("sprang", async ctx => {
-    const birthDate = await getMemberBirthDate("ROSP")
-    const { days, age } = calculateDaysTillBirthDay(birthDate)
-    ctx.reply(`Nog ${days} ${days === 1 ? "dag" : "dagen"} tot sprangs ${age}e verjaardag`)
-  })
+  if (process.env.SPRANG_ID != null && process.env.SPRANG_ID != "") {
+    bot.command("sprang", async ctx => {
+      const birthDate = await getMemberBirthDate(process.env.SPRANG_ID as string)
+      const { days, age } = calculateDaysTillBirthDay(birthDate)
+      ctx.reply(`Nog ${days} ${days === 1 ? "dag" : "dagen"} tot sprangs ${age}e verjaardag`)
+    })
+  }
 }
