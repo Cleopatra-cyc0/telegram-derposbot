@@ -14,11 +14,47 @@
           "primary": true,
           "nullable": false,
           "mappedType": "bigint"
+        },
+        "congressus_id": {
+          "name": "congressus_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
+        "congresssus_oauth_state": {
+          "name": "congresssus_oauth_state",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "string"
         }
       },
       "name": "user",
       "schema": "public",
       "indexes": [
+        {
+          "columnNames": [
+            "congressus_id"
+          ],
+          "composite": false,
+          "keyName": "user_congressus_id_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "columnNames": [
+            "congresssus_oauth_state"
+          ],
+          "composite": false,
+          "keyName": "user_congresssus_oauth_state_unique",
+          "primary": false,
+          "unique": true
+        },
         {
           "keyName": "user_pkey",
           "columnNames": [

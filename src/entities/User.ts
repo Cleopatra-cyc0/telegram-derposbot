@@ -1,4 +1,4 @@
-import { Collection, Entity, EntityRepositoryType, OneToMany, PrimaryKey } from "@mikro-orm/core"
+import { Collection, Entity, EntityRepositoryType, OneToMany, PrimaryKey, Property, Unique } from "@mikro-orm/core"
 import { EntityRepository } from "@mikro-orm/postgresql"
 import logger from "../log"
 import Shit from "./Shit"
@@ -15,6 +15,14 @@ export default class User {
     type: "bigint",
   })
   telegramId!: number
+
+  @Property()
+  @Unique()
+  congressusId?: number
+
+  @Property()
+  @Unique()
+  congresssusOauthState?: string
 
   @OneToMany(() => Shit, shit => shit.user)
   shits = new Collection<Shit>(this)
