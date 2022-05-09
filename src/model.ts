@@ -4,6 +4,12 @@ import fetch, { FetchError } from "node-fetch"
 import { DateTime } from "luxon"
 
 const congressusToken = process.env.CONGRESSUS_TOKEN
+
+if (!congressusToken) {
+  logger.fatal("No congressus token provided, exiting")
+  process.exit(2)
+}
+
 export type CongressusMember = {
   id: 0
   username: string

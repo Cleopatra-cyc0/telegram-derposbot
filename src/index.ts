@@ -13,17 +13,11 @@ import shitCommands from "./commands/shit"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
-const congressusToken = process.env.CONGRESSUS_TOKEN
 const webHookDomain = process.env.WEBHOOK_DOMAIN
 
 if (!telegramToken) {
   logger.fatal("No telegram token provided, exiting")
   process.exit(1)
-}
-
-if (!congressusToken) {
-  logger.fatal("No congressus token provided, exiting")
-  process.exit(2)
 }
 
 export interface MyContext extends Context {
