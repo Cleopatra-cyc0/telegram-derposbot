@@ -45,6 +45,7 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
   const user = await ctx.db.findOne(User, { congresssusOauthState: state })
   if (user != null) {
     const res = await fetch(`${congressusDomain}/oauth/token`, {
+      method: "POST",
       headers: {
         Authorization: `Basic ${Buffer.from(congressusClientId + ":" + congressusClientSecret).toString("base64")}`,
         "Content-Type": "application/x-www-form-urlencoded",
