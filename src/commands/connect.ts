@@ -51,16 +51,16 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
       },
       body: `grant_type=authorization_code&code=${code}`,
     })
+    const body = await res.json()
     if (res.ok) {
-      const body = await res.json() // TODO: Add validation and use body to store user
       user.congressusId = body.user_id
       user.congresssusOauthState = undefined
       ctx.db.persist(user)
-      logger.info("user succes")
+      logger.info({ user }, "user succes")
     } else {
-      logger.error("oauth return fetch error")
+      logger.error({ error: res.status, body }, "oauth return fetch error")
     }
   } else {
-    logger.error("invalid state given in OAuth flow")
+    logger.error({ state }, "invalid state given in OAuth flow")
   }
 }
