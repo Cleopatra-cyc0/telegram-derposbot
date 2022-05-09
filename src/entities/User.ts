@@ -18,6 +18,7 @@ export default class User {
   @Property({
     length: 100,
   })
+  @Unique()
   telegramId!: string
 
   @OneToMany(() => Shit, shit => shit.user)
