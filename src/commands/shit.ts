@@ -7,12 +7,7 @@ import logger from "../log"
 
 export default function shitCommands(bot: Telegraf<MyContext>) {
   bot.command("poep", async ctx => {
-    let user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id.toString() })
-    if (user == null) {
-      user = new User(ctx.message.from.id.toString())
-      await ctx.db.persist(user)
-      logger.info({ user }, "new user")
-    }
+    const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id.toString())
     const shit = new Shit(user)
     await ctx.db.persist(shit).flush()
     logger.trace({ user }, "new shit")
