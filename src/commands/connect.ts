@@ -52,13 +52,14 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
       },
       body: `grant_type=authorization_code&code=${code}`,
     })
-    const body = await res.json()
     if (res.ok) {
+      const body = await res.json()
       user.congressusId = body.user_id
       user.congresssusOauthState = undefined
       ctx.db.persist(user)
       logger.info({ user }, "user succes")
     } else {
+      const body = await res.text()
       logger.error({ error: res.status, body }, "oauth return fetch error")
     }
   } else {
