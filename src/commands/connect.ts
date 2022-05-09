@@ -62,6 +62,9 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
       user.congresssusOauthState = undefined
       ctx.db.persist(user)
       logger.info({ user }, "user succes")
+      ctx.res.write("Ja mooi man")
+      ctx.status = 200
+      ctx.res.end()
     } else {
       const body = await res.text()
       logger.error({ error: res.status, body }, "oauth return fetch error")
