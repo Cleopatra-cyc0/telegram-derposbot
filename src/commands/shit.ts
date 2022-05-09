@@ -1,11 +1,11 @@
 import { DateTime } from "luxon"
 import { Telegraf } from "telegraf"
-import { MyContext } from ".."
+import { MyTelegrafContext } from ".."
 import Shit from "../entities/Shit"
 import User from "../entities/User"
 import logger from "../log"
 
-export default function shitCommands(bot: Telegraf<MyContext>) {
+export default function shitCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.command("poep", async ctx => {
     const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)
     const shit = new Shit(user)

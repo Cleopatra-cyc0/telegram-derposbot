@@ -1,10 +1,10 @@
 import { Telegraf } from "telegraf"
-import { MyContext } from ".."
+import { MyTelegrafContext } from ".."
 import logger from "../log"
 import ChatSubscription, { SubScriptionType } from "../entities/ChatSubscription"
 import { enumKeys } from "../util"
 
-export default function subscriptionCommands(bot: Telegraf<MyContext>) {
+export default function subscriptionCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.start(async ctx => {
     const typeRaw = ctx.message.text.split(" ")[1]?.toLowerCase()
     let type: SubScriptionType | null = null

@@ -1,11 +1,11 @@
 import "dotenv/config"
-import { Context, Telegraf } from "telegraf"
+import { Context as TelegrafContext, Telegraf } from "telegraf"
 import logger, { track } from "./log"
 import { Settings } from "luxon"
 import { EntityManager } from "@mikro-orm/core"
 import { PostgreSqlDriver } from "@mikro-orm/postgresql"
 import localtunnel from "localtunnel"
-import Koa from "koa"
+import Koa, { Context as KoaContext } from "koa"
 import bodyParser from "koa-bodyparser"
 import Router from "@koa/router"
 import MikroOrm from "./database"
@@ -14,7 +14,7 @@ import subscriptionCommands from "./commands/subscription"
 import birthdayCommands from "./commands/birthday"
 import triviaCommands from "./commands/trivia"
 import shitCommands from "./commands/shit"
-import { connectCommands } from "./commands/connect"
+import { congressusOAuthHandler, connectCommands } from "./commands/connect"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -24,12 +24,16 @@ if (!telegramToken) {
   process.exit(1)
 }
 
-export interface MyContext extends Context {
+export interface MyTelegrafContext extends TelegrafContext {
+  db: EntityManager<PostgreSqlDriver>
+}
+
+export interface MyKoaContext extends KoaContext {
   db: EntityManager<PostgreSqlDriver>
 }
 
 // Create bot
-const bot = new Telegraf<MyContext>(telegramToken)
+const bot = new Telegraf<MyTelegrafContext>(telegramToken)
 
 bot.on("message", async (ctx, next) => {
   const time = track()
@@ -71,6 +75,11 @@ connectCommands(bot)
 
   const app = new Koa()
   app.use(bodyParser())
+  app.use(async (ctx, next) => {
+    ctx.db = (await MikroOrm).em.fork()
+    await next()
+    await ctx.db.flush()
+  })
   const router = new Router()
   router.post(secretPath, async ctx => {
     try {
@@ -80,6 +89,8 @@ connectCommands(bot)
     }
     ctx.status = 200
   })
+
+  router.get("/oauth/congressus", congressusOAuthHandler)
 
   app.use(router.middleware())
   app.listen(process.env.DEV_PORT ?? 80)

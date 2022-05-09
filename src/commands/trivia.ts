@@ -1,9 +1,9 @@
 import { Telegraf } from "telegraf"
-import { MyContext } from ".."
+import { MyTelegrafContext } from ".."
 import { getMemberBirthDate } from "../model"
 import { calculateDaysTillBirthDay } from "../util"
 
-export default function triviaCommands(bot: Telegraf<MyContext>) {
+export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.hears("lul", ctx => {
     return ctx.reply("zuigen dan")
   })

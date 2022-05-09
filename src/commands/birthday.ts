@@ -1,14 +1,14 @@
 import { CronJob } from "cron"
 import { Telegraf } from "telegraf"
 import { Message } from "telegraf/typings/core/types/typegram"
-import { MyContext } from ".."
+import { MyTelegrafContext } from ".."
 import MikroOrm from "../database"
 import ChatSubscription, { SubScriptionType } from "../entities/ChatSubscription"
 import logger, { track } from "../log"
 import { getBirthDayMembers, getMemberBirthDate } from "../model"
 import { calculateDaysTillBirthDay, ErrorType, MyError } from "../util"
 
-export default function birthdayCommands(bot: Telegraf<MyContext>) {
+export default function birthdayCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.command("birthday", async ctx => {
     if (ctx.message.text.trim().split(" ").length === 1) {
       await sendBirthdayMessage(bot, ctx)
@@ -31,7 +31,7 @@ export default function birthdayCommands(bot: Telegraf<MyContext>) {
   return () => job.stop()
 }
 
-async function sendBirthdayMessage(bot: Telegraf<MyContext>, ctx?: MyContext) {
+async function sendBirthdayMessage(bot: Telegraf<MyTelegrafContext>, ctx?: MyTelegrafContext) {
   const birthDayMembers = await getBirthDayMembers()
   let message
   if (birthDayMembers.length === 0) {
@@ -70,7 +70,7 @@ async function sendBirthdayMessage(bot: Telegraf<MyContext>, ctx?: MyContext) {
   }
 }
 
-async function sendDaysToBirthdayMessage(ctx: MyContext) {
+async function sendDaysToBirthdayMessage(ctx: MyTelegrafContext) {
   const username = (ctx.message as Message.TextMessage).text.split(" ")[1]
   try {
     const birthDate = await getMemberBirthDate(username.toLocaleUpperCase())
