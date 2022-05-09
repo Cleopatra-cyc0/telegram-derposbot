@@ -6,42 +6,23 @@
   "tables": [
     {
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "unsigned": true,
-          "autoincrement": true,
-          "primary": true,
-          "nullable": false,
-          "mappedType": "integer"
-        },
         "telegram_id": {
           "name": "telegram_id",
-          "type": "varchar(100)",
+          "type": "bigint",
           "unsigned": false,
           "autoincrement": false,
-          "primary": false,
+          "primary": true,
           "nullable": false,
-          "length": 100,
-          "mappedType": "string"
+          "mappedType": "bigint"
         }
       },
       "name": "user",
       "schema": "public",
       "indexes": [
         {
-          "columnNames": [
-            "telegram_id"
-          ],
-          "composite": false,
-          "keyName": "user_telegram_id_unique",
-          "primary": false,
-          "unique": true
-        },
-        {
           "keyName": "user_pkey",
           "columnNames": [
-            "id"
+            "telegram_id"
           ],
           "composite": false,
           "primary": true,
@@ -71,14 +52,14 @@
           "nullable": false,
           "mappedType": "string"
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "int",
+        "user_telegram_id": {
+          "name": "user_telegram_id",
+          "type": "bigint",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "integer"
+          "mappedType": "bigint"
         }
       },
       "name": "shit",
@@ -96,14 +77,14 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "shit_user_id_foreign": {
-          "constraintName": "shit_user_id_foreign",
+        "shit_user_telegram_id_foreign": {
+          "constraintName": "shit_user_telegram_id_foreign",
           "columnNames": [
-            "user_id"
+            "user_telegram_id"
           ],
           "localTableName": "public.shit",
           "referencedColumnNames": [
-            "id"
+            "telegram_id"
           ],
           "referencedTableName": "public.user",
           "deleteRule": "cascade",

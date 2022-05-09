@@ -7,7 +7,7 @@ import logger from "../log"
 
 export default function shitCommands(bot: Telegraf<MyContext>) {
   bot.command("poep", async ctx => {
-    const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id.toString())
+    const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)
     const shit = new Shit(user)
     await ctx.db.persist(shit).flush()
     logger.trace({ user }, "new shit")
@@ -20,7 +20,7 @@ export default function shitCommands(bot: Telegraf<MyContext>) {
   })
 
   bot.command("poepsie", async ctx => {
-    const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id.toString() }, { populate: ["shits"] })
+    const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id }, { populate: ["shits"] })
     if (user != null) {
       const lastShit = user.shits.getItems().reduce((last, curr) => (curr.date > last.date ? curr : last))
       ctx.db.remove(lastShit)
@@ -31,7 +31,7 @@ export default function shitCommands(bot: Telegraf<MyContext>) {
   })
 
   bot.command("poepstats", async ctx => {
-    const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id.toString() }, { populate: ["shits"] })
+    const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id }, { populate: ["shits"] })
     if (user != null && user.shits.length > 0) {
       const firstPoop = user.shits.getItems().reduce((first, curr) => (curr.date < first.date ? curr : first))
       const count = user.shits.length
