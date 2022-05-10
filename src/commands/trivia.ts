@@ -16,7 +16,7 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
     return ctx.reply("misschien")
   })
 
-  bot.command("kut bot", ctx => {
+  bot.command("kutbot", ctx => {
     const random = Math.random()
     if (random > 0.7) {
       return ctx.reply(":(")
