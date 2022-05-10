@@ -30,6 +30,10 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
     }
   })
 
+  bot.command("goodbot", ctx => {
+    return ctx.replyWithPhoto("https://ppcprotect.com/static/d634452a7d2ae979b9fcd9a04d3bf6eb/good-bots.jpg")
+  })
+
   bot.command("kopofmunt", async ctx => {
     if (Math.random() >= 0.5) {
       await ctx.reply("kop")
