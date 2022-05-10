@@ -41,6 +41,7 @@ export function connectCommands(bot: Telegraf<MyTelegrafContext>) {
       ctx.reply("moet je even prive doen piepo")
     }
   })
+
   bot.command("disconnect", async ctx => {
     const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id })
     if (user != null) {
@@ -72,13 +73,17 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
     })
     if (res.ok) {
       const body = await res.json()
-      user.congressusId = body.user_id
-      user.congresssusOauthState = undefined
-      ctx.db.persist(user)
-      logger.info({ user }, "user succes")
-      ctx.res.write("Ja mooi man")
-      ctx.status = 200
-      ctx.res.end()
+      if ((await ctx.db.count(User, { congressusId: body.userId })) === 0) {
+        user.congressusId = body.user_id
+        user.congresssusOauthState = undefined
+        ctx.db.persist(user)
+        logger.info({ user }, "user succes")
+        ctx.res.write("Ja mooi man")
+        ctx.status = 200
+        ctx.res.end()
+      } else {
+        ctx.reply("Die ken ik al, disconnect met je oude account om een nieuwe te koppelen")
+      }
     } else {
       const body = await res.text()
       logger.error({ error: res.status, body }, "oauth return fetch error")
