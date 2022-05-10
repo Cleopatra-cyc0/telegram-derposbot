@@ -4,6 +4,9 @@ import { getMemberBirthDate } from "../model"
 import { calculateDaysTillBirthDay } from "../util"
 
 export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
+  bot.start(async ctx => {
+    await ctx.reply("hoi")
+  })
   bot.hears("lul", ctx => {
     return ctx.reply("zuigen dan")
   })
