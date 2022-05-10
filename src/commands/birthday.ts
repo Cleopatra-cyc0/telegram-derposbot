@@ -44,7 +44,7 @@ export default function birthdayCommands(bot: Telegraf<MyTelegrafContext>) {
         }
       }
     } else {
-      await ctx.reply("je moet eerst even connecten, gebruik het /connect command")
+      await ctx.reply("je moet eerst even connecten, gebruik het /connect command (in een privechat)")
     }
   })
 
