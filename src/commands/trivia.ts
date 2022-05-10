@@ -37,6 +37,21 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
       await ctx.reply("munt")
     }
   })
+
+  bot.command("dock", async ctx => {
+    if (ctx.chat.type === "private") {
+      await ctx.replyWithPhoto("https://cumception.com/wp-content/upload/2020/06/cock_docki-5965.jpg")
+    } else {
+      try {
+        await ctx.telegram.sendPhoto(
+          ctx.message.from.id,
+          "https://cumception.com/wp-content/upload/2020/06/cock_docki-5965.jpg",
+        )
+      } catch (error) {
+        ctx.reply("Ik kan je prive niet bereiken, probeer even een privegesprek te starten")
+      }
+    }
+  })
   const sprangId = parseInt(process.env.SPRANG_ID ?? "")
   if (!isNaN(sprangId)) {
     bot.command("sprang", async ctx => {
