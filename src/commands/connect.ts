@@ -89,8 +89,14 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
     } else {
       const body = await res.text()
       logger.error({ error: res.status, body }, "oauth return fetch error")
+      ctx.res.write("ging iets mis bij congressus")
+      ctx.status = 500
+      ctx.res.end()
     }
   } else {
     logger.error({ state }, "invalid state given in OAuth flow")
+    ctx.res.write("Dat mag niet")
+    ctx.status = 403
+    ctx.res.end()
   }
 }
