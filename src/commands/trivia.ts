@@ -1,3 +1,4 @@
+import sleep from "sleep-promise"
 import { Telegraf } from "telegraf"
 import { MyTelegrafContext } from ".."
 import { getMemberBirthDate } from "../model"
@@ -42,7 +43,9 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
     }
   })
 
-  bot.command("dock", async ctx => {
+  bot.command("dok", async ctx => {
+    await ctx.reply("Dus jij wil dok zien?")
+    await sleep(1000)
     if (ctx.chat.type === "private") {
       await ctx.replyWithPhoto("https://cumception.com/wp-content/upload/2020/06/cock_docki-5965.jpg")
     } else {
@@ -52,7 +55,7 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
           "https://cumception.com/wp-content/upload/2020/06/cock_docki-5965.jpg",
         )
       } catch (error) {
-        ctx.reply("Ik kan je prive niet bereiken, probeer even een privegesprek te starten")
+        await ctx.reply("Ik kan je prive niet bereiken, probeer even een privegesprek te starten")
       }
     }
   })
