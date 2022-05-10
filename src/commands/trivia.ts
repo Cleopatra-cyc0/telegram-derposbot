@@ -34,9 +34,10 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
       await ctx.reply("munt")
     }
   })
-  if (process.env.SPRANG_ID != null && process.env.SPRANG_ID != "") {
+  const sprangId = parseInt(process.env.SPRANG_ID ?? "")
+  if (!isNaN(sprangId)) {
     bot.command("sprang", async ctx => {
-      const birthDate = await getMemberBirthDate(process.env.SPRANG_ID as string)
+      const birthDate = await getMemberBirthDate(sprangId)
       const { days, age } = calculateDaysTillBirthDay(birthDate)
       ctx.reply(`Nog ${days} ${days === 1 ? "dag" : "dagen"} tot sprangs ${age}e verjaardag`)
     })

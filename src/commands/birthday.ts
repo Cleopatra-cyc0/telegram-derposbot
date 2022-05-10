@@ -1,20 +1,50 @@
 import { CronJob } from "cron"
 import { Telegraf } from "telegraf"
-import { Message } from "telegraf/typings/core/types/typegram"
 import { MyTelegrafContext } from ".."
 import MikroOrm from "../database"
 import ChatSubscription, { SubScriptionType } from "../entities/ChatSubscription"
+import User from "../entities/User"
 import logger, { track } from "../log"
 import { getBirthDayMembers, getMemberBirthDate } from "../model"
 import { calculateDaysTillBirthDay, ErrorType, MyError } from "../util"
 
 export default function birthdayCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.command("birthday", async ctx => {
-    if (ctx.message.text.trim().split(" ").length === 1) {
-      await sendBirthdayMessage(bot, ctx)
+    await ctx.reply("die is vervangen door /wieiserjarig en /mijnverjaardag")
+  })
+
+  bot.command("wieiserjarig", ctx => sendBirthdayMessage(bot, ctx))
+
+  bot.command("mijnverjaardag", async ctx => {
+    const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id })
+    if (user != null && user.congressusId != null) {
+      try {
+        const birthDate = await getMemberBirthDate(user.congressusId)
+        const { days, age } = calculateDaysTillBirthDay(birthDate)
+        ctx.reply(`Nog ${days} ${days === 1 ? "dag" : "dagen"} tot jouw ${age}e verjaardag`)
+      } catch (error) {
+        if (error instanceof MyError) {
+          switch (error.type) {
+            case ErrorType.MemberNotFound:
+              logger.error({ user }, "retrieved invalid member id from database")
+              await ctx.reply("Nou heb je iets heel interessants gedaan")
+              break
+            case ErrorType.PrivateInformation:
+              logger.trace({ user }, "member tried to get own private birthday")
+              await ctx.reply("Je zei zelf dat ik dat niet mocht zeggen")
+              break
+            case ErrorType.CongressusNetworkError:
+              logger.error("congressus error after retries")
+              await ctx.reply("Congressus doet kut")
+              break
+          }
+        } else {
+          logger.error({ error }, "unexpected error during birthday getting")
+          await ctx.reply("ja nee")
+        }
+      }
     } else {
-      // someone added a member username
-      sendDaysToBirthdayMessage(ctx)
+      await ctx.reply("je moet eerst even connecten, gebruik het /connect command")
     }
   })
 
@@ -67,31 +97,5 @@ async function sendBirthdayMessage(bot: Telegraf<MyTelegrafContext>, ctx?: MyTel
       },
       "sent daily birthday",
     )
-  }
-}
-
-async function sendDaysToBirthdayMessage(ctx: MyTelegrafContext) {
-  const username = (ctx.message as Message.TextMessage).text.split(" ")[1]
-  try {
-    const birthDate = await getMemberBirthDate(username.toLocaleUpperCase())
-    const { days, age } = calculateDaysTillBirthDay(birthDate)
-    ctx.reply(`Nog ${days} ${days === 1 ? "dag" : "dagen"} tot hun ${age}e verjaardag`)
-  } catch (error) {
-    if (error instanceof MyError) {
-      switch (error.type) {
-        case ErrorType.MemberNotFound:
-          await ctx.reply("Nooit van gehoord die")
-          break
-        case ErrorType.PrivateInformation:
-          await ctx.reply("Ja dat weet ik niet")
-          break
-        case ErrorType.CongressusNetworkError:
-          await ctx.reply("Congressus doet kut")
-          break
-      }
-    } else {
-      logger.error({ error }, "ERROR during birthday getting")
-      await ctx.reply("ja nee")
-    }
   }
 }

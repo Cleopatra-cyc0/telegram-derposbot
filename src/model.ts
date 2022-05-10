@@ -110,34 +110,32 @@ export async function getBirthDayMembers() {
   return birthdayCache.cache
 }
 
-export async function getMemberBirthDate(username: string, retry = 0): Promise<DateTime> {
+export async function getMemberBirthDate(userId: number, retry = 0): Promise<DateTime> {
   try {
     const time = track()
-    const res = await fetch(`https://api.congressus.nl/v20/members?username=${username}`, {
+    const res = await fetch(`https://api.congressus.nl/v30/members/${userId}`, {
       headers: {
         Authorization: `Bearer:${congressusToken}`,
       },
     })
     if (res.ok) {
-      const body = (await res.json()) as CongressusMember[]
-      if (body.length > 0) {
-        if (body[0].show_almanac_date_of_birth) {
-          logger.debug(time(), "congressus: fetch-single-birthday")
-          return DateTime.fromISO(body[0].date_of_birth)
-        } else {
-          throw new MyError(ErrorType.PrivateInformation)
-        }
+      const body = (await res.json()) as CongressusMember
+      if (body.show_almanac_date_of_birth) {
+        logger.debug(time(), "congressus: fetch-single-birthday")
+        return DateTime.fromISO(body.date_of_birth)
       } else {
-        logger.error(time(), "congressus member not found")
-        throw new MyError(ErrorType.MemberNotFound)
+        throw new MyError(ErrorType.PrivateInformation)
       }
+    } else if (res.status === 404) {
+      logger.error(time(), "congressus member not found")
+      throw new MyError(ErrorType.MemberNotFound)
     } else {
       throw { ...new Error("Unexpected error"), httpResponse: res }
     }
   } catch (error) {
     if (error instanceof FetchError) {
       if (retry < 3) {
-        return getMemberBirthDate(username, retry + 1)
+        return getMemberBirthDate(userId, retry + 1)
       } else {
         throw new MyError(ErrorType.CongressusNetworkError)
       }
