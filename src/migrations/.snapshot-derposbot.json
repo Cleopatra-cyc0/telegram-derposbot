@@ -23,6 +23,15 @@
           "primary": false,
           "nullable": true,
           "mappedType": "integer"
+        },
+        "telegram_private_chat_id": {
+          "name": "telegram_private_chat_id",
+          "type": "bigint",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "bigint"
         }
       },
       "name": "user",
@@ -34,6 +43,15 @@
           ],
           "composite": false,
           "keyName": "user_congressus_id_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "columnNames": [
+            "telegram_private_chat_id"
+          ],
+          "composite": false,
+          "keyName": "user_telegram_private_chat_id_unique",
           "primary": false,
           "unique": true
         },

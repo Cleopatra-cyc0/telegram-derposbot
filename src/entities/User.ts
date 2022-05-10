@@ -20,6 +20,12 @@ export default class User {
   @Unique()
   congressusId?: number
 
+  @Property({
+    type: "bigint",
+  })
+  @Unique()
+  telegramPrivateChatId?: number
+
   @OneToMany(() => Shit, shit => shit.user)
   shits = new Collection<Shit>(this)
 }

@@ -30,6 +30,14 @@ const oAuthStateStore: Map<ReturnType<typeof uuid4>, User["telegramId"]> = new M
  * @param bot the telegraf instance to add the commands to
  */
 export function connectCommands(bot: Telegraf<MyTelegrafContext>) {
+  bot.use(async (ctx, next) => {
+    if (ctx.message?.from?.id != null && ctx.chat?.type === "private") {
+      const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)
+      user.telegramPrivateChatId = ctx.chat.id
+      ctx.db.persist(user)
+    }
+    await next()
+  })
   bot.command("connect", async ctx => {
     if (ctx.chat.type === "private") {
       const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)
