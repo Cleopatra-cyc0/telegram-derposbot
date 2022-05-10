@@ -88,7 +88,9 @@ async function fetchBirthdayMembers() {
 
   const result = body
     .filter(m => m.show_almanac_date_of_birth && IsSameDate(m.date_of_birth))
-    .map(m => [m.first_name, m.primary_last_name_prefix, m.primary_last_name_main].join(" "))
+    .map(m =>
+      [m.first_name, m.primary_last_name_prefix, m.primary_last_name_main].filter(n => n != null && n !== "").join(" "),
+    )
   logger.debug(time(), "congressus: fetch-all-birthdays")
   return result
 }
