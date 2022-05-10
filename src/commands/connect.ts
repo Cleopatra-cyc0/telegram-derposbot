@@ -4,6 +4,7 @@ import User from "../entities/User"
 import { v4 as uuid4 } from "uuid"
 import logger from "../log"
 import fetch from "node-fetch"
+import { URL } from "node:url"
 
 const congressusDomain = process.env.CONGRESSUS_DOMAIN
 const congressusClientId = process.env.CONGRESSUS_CLIENT_ID
@@ -32,9 +33,13 @@ export function connectCommands(bot: Telegraf<MyTelegrafContext>) {
       const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)
       user.congresssusOauthState = uuid4()
       ctx.db.persist(user)
-      const link = `${congressusDomain}/oauth/authorize?response_type=code&client_id=${congressusClientId}&scope=openid&state=${user.congresssusOauthState}`
+      const url = new URL("/oauth/authorize", congressusDomain)
+      url.searchParams.set("response_type", "code")
+      url.searchParams.set("client_id", congressusClientId as string)
+      url.searchParams.set("scope", "openid")
+      url.searchParams.set("state", user.congresssusOauthState)
 
-      ctx.reply(`Click on [this link](${link}) and log in to congressus to connect your acocunt`, {
+      ctx.reply(`Click on [this link](${url.toString()}) and log in to congressus to connect your acocunt`, {
         parse_mode: "MarkdownV2",
       })
     } else {
