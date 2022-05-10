@@ -137,6 +137,7 @@ export async function getMemberBirthDate(userId: number, retry = 0): Promise<Dat
   } catch (error) {
     if (error instanceof FetchError) {
       if (retry < 3) {
+        logger.debug({ retry }, "retrying congressus request")
         return getMemberBirthDate(userId, retry + 1)
       } else {
         throw new MyError(ErrorType.CongressusNetworkError)
