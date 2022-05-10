@@ -1,7 +1,7 @@
 import { Telegraf } from "telegraf"
 import { MyTelegrafContext } from ".."
 import { getMemberBirthDate } from "../model"
-import { calculateDaysTillBirthDay } from "../util"
+import { calculateDaysTillBirthDay, getRandomInRange } from "../util"
 
 export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.start(async ctx => {
@@ -60,4 +60,7 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
       ctx.reply(`Nog ${days} ${days === 1 ? "dag" : "dagen"} tot sprangs ${age}e verjaardag`)
     })
   }
+  bot.command("waarbenje", async ctx => {
+    ctx.replyWithLocation(getRandomInRange(-180, 180), getRandomInRange(-180, 180))
+  })
 }

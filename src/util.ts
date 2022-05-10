@@ -78,3 +78,7 @@ export class LuxonDate extends Type<DateTime | undefined, string | undefined> {
     return "string"
   }
 }
+
+export function getRandomInRange(from: number, to: number) {
+  return Math.random() * (to - from) + from
+}
