@@ -72,7 +72,8 @@ connectCommands(bot)
   const secretPath = `/telegraf/${bot.secretPathComponent()}`
 
   await bot.telegram.setWebhook(`${domain}${secretPath}`)
-
+  bot.botInfo = await bot.telegram.getMe()
+  logger.info({ botInfo: bot.botInfo }, "initialised botinfo")
   const app = new Koa()
   app.use(bodyParser())
   app.use(async (ctx, next) => {
