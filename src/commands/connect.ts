@@ -82,7 +82,9 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
         ctx.status = 200
         ctx.res.end()
       } else {
-        ctx.reply("Die ken ik al, disconnect met je oude account om een nieuwe te koppelen")
+        ctx.res.write("jou kende ik al")
+        ctx.status = 403
+        ctx.res.end()
       }
     } else {
       const body = await res.text()
