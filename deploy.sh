@@ -13,8 +13,10 @@ scp image.tar.gz mees@s.mees.io:derposbot.tar.gz
 echo "removing file"
 rm image.tar.gz
 ssh mees@s.mees.io << EOF
+  echo stopping container
+  docker stop derposbot
   echo removing container
-  docker rm -f derposbot
+  docker rm derposbot
   echo removing old image from server
   docker rmi derposbot:latest &
   echo un-gzipping new image &
