@@ -22,9 +22,13 @@ export default function shitCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.command("poepsie", async ctx => {
     const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id }, { populate: ["shits"] })
     if (user != null) {
-      const lastShit = user.shits.getItems().reduce((last, curr) => (curr.date > last.date ? curr : last))
-      ctx.db.remove(lastShit)
-      await ctx.reply("Oke die is weg")
+      if (user.shits.length > 0) {
+        const lastShit = user.shits.getItems().reduce((last, curr) => (curr.date > last.date ? curr : last))
+        ctx.db.remove(lastShit)
+        await ctx.reply("Oke die is weg")
+      } else {
+        await ctx.reply("Moet je wel eerst poepen")
+      }
     } else {
       await ctx.reply("Ik ken jou helemaal niet, flikker op")
     }
