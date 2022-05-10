@@ -52,6 +52,15 @@ export function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O):
   return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[]
 }
 
+export function stringInEnum(str: string, e: object) {
+  for (const key of enumKeys(e)) {
+    if (str === e[key]) {
+      return true
+    }
+  }
+  return false
+}
+
 export class LuxonDate extends Type<DateTime | undefined, string | undefined> {
   convertToDatabaseValue(value: DateTime | string | undefined): string | undefined {
     if (value instanceof DateTime) {

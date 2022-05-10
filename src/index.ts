@@ -15,6 +15,7 @@ import birthdayCommands from "./commands/birthday"
 import triviaCommands from "./commands/trivia"
 import shitCommands from "./commands/shit"
 import { congressusOAuthHandler, userCommands } from "./commands/user"
+import announcementCommands from "./commands/announcement"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -35,17 +36,17 @@ export interface MyKoaContext extends KoaContext {
 // Create bot
 const bot = new Telegraf<MyTelegrafContext>(telegramToken)
 
-bot.on("message", async (ctx, next) => {
+bot.use(async (ctx, next) => {
   const time = track()
 
   await next()
 
   logger.trace(
     {
-      message: ctx.message,
+      update: ctx.update,
       ...time(),
     },
-    "message",
+    "telegram update received",
   )
 })
 
@@ -60,6 +61,7 @@ triviaCommands(bot)
 subscriptionCommands(bot)
 shitCommands(bot)
 userCommands(bot)
+announcementCommands(bot)
 ;(async () => {
   let domain
   if (process.env.WEBHOOK_DOMAIN != null && process.env.WEBHOOK_DOMAIN != "") {
