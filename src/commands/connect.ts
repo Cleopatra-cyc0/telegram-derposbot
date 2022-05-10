@@ -41,6 +41,20 @@ export function connectCommands(bot: Telegraf<MyTelegrafContext>) {
       ctx.reply("moet je even prive doen piepo")
     }
   })
+  bot.command("disconnect", async ctx => {
+    const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id })
+    if (user != null) {
+      if (user.congressusId) {
+        user.congressusId = undefined
+        ctx.db.persist(user)
+        ctx.reply("k")
+      } else {
+        ctx.reply("Jou had ik nog niet hoor")
+      }
+    } else {
+      ctx.reply("wie ben jij?")
+    }
+  })
 }
 
 export async function congressusOAuthHandler(ctx: MyKoaContext) {
