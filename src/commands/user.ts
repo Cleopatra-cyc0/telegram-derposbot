@@ -29,7 +29,7 @@ const oAuthStateStore: Map<ReturnType<typeof uuid4>, User["telegramId"]> = new M
  * Commands that deal with the connection between congressus and telegram
  * @param bot the telegraf instance to add the commands to
  */
-export function connectCommands(bot: Telegraf<MyTelegrafContext>) {
+export function userCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.use(async (ctx, next) => {
     if (ctx.message?.from?.id != null && ctx.chat?.type === "private") {
       const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)

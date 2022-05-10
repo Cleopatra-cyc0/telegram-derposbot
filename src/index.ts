@@ -14,7 +14,7 @@ import subscriptionCommands from "./commands/subscription"
 import birthdayCommands from "./commands/birthday"
 import triviaCommands from "./commands/trivia"
 import shitCommands from "./commands/shit"
-import { congressusOAuthHandler, connectCommands } from "./commands/connect"
+import { congressusOAuthHandler, userCommands } from "./commands/user"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -59,7 +59,7 @@ const stopCronJob = birthdayCommands(bot)
 triviaCommands(bot)
 subscriptionCommands(bot)
 shitCommands(bot)
-connectCommands(bot)
+userCommands(bot)
 ;(async () => {
   let domain
   if (process.env.WEBHOOK_DOMAIN != null && process.env.WEBHOOK_DOMAIN != "") {
