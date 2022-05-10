@@ -54,7 +54,7 @@ export function connectCommands(bot: Telegraf<MyTelegrafContext>) {
         parse_mode: "MarkdownV2",
       })
     } else {
-      ctx.reply("moet je even prive doen piepo")
+      ctx.reply(`moet je even prive doen piepo: https://t.me/${ctx.botInfo?.username}`)
     }
   })
 
