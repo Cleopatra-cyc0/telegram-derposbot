@@ -5,7 +5,7 @@ import ChatSubscription, { SubScriptionType } from "../entities/ChatSubscription
 import { enumKeys } from "../util"
 
 export default function subscriptionCommands(bot: Telegraf<MyTelegrafContext>) {
-  bot.start(async ctx => {
+  bot.command("subscribe", async ctx => {
     const typeRaw = ctx.message.text.split(" ")[1]?.toLowerCase()
     let type: SubScriptionType | null = null
     for (const key of enumKeys(SubScriptionType)) {
@@ -38,7 +38,7 @@ export default function subscriptionCommands(bot: Telegraf<MyTelegrafContext>) {
       ctx.reply("mag niet")
     }
   })
-  bot.command("cancel", async ctx => {
+  bot.command("unsubscribe", async ctx => {
     const typeRaw = ctx.message.text.split(" ")[1]?.toLowerCase()
     let type: SubScriptionType | null = null
     for (const key of enumKeys(SubScriptionType)) {
