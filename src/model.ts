@@ -115,7 +115,7 @@ export async function getMemberBirthDate(userId: number, retry = 0): Promise<Dat
     const time = track()
     const res = await fetch(`https://api.congressus.nl/v30/members/${userId}`, {
       headers: {
-        Authorization: `Bearer:${congressusToken}`,
+        Authorization: `Bearer: ${congressusToken}`,
       },
     })
     if (res.ok) {
