@@ -20,10 +20,6 @@ export default class User {
   @Unique()
   congressusId?: number
 
-  @Property()
-  @Unique()
-  congresssusOauthState?: string
-
   @OneToMany(() => Shit, shit => shit.user)
   shits = new Collection<Shit>(this)
 }
