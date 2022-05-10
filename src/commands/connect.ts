@@ -72,8 +72,9 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
       body: `grant_type=authorization_code&code=${code}`,
     })
     if (res.ok) {
-      const body = await res.json()
-      if ((await ctx.db.count(User, { congressusId: body.userId })) === 0) {
+      const body = (await res.json()) as { user_id: number }
+      const alreadyExists = await ctx.db.count(User, { congressusId: body.user_id })
+      if (alreadyExists === 0) {
         user.congressusId = body.user_id
         user.congresssusOauthState = undefined
         ctx.db.persist(user)
@@ -82,6 +83,7 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
         ctx.status = 200
         ctx.res.end()
       } else {
+        logger.info({ congressusBody: body, user }, "duplicate telegram account to congressus account")
         ctx.res.write("jou kende ik al")
         ctx.status = 403
         ctx.res.end()
