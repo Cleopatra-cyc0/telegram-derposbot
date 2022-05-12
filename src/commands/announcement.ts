@@ -69,7 +69,8 @@ export default function announcementCommands(bot: Telegraf<MyTelegrafContext>) {
       !callbacksProcessing.has(ctx.callbackQuery.data)
     ) {
       callbacksProcessing.add(ctx.callbackQuery.data)
-      const callbackData = JSON.parse(ctx.callbackQuery.data.slice(-4))
+      const jsonStr = ctx.callbackQuery.data.slice(4)
+      const callbackData = JSON.parse(jsonStr)
       const [action, messageId, chatId] = callbackData
       if (stringInEnum(action, AnnouncementReply)) {
         if (action !== AnnouncementReply.ConfirmReceived) {
