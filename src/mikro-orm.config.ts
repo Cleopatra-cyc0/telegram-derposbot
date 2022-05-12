@@ -21,7 +21,7 @@ const config: Options<PostgreSqlDriver> = {
     pathTs: "src/migrations",
     disableForeignKeys: false,
   },
-  debug: true,
+  debug: process.env.NODE_ENV === "development",
   // logger: msg => logger.trace({ mikroOrm: msg }, "micro-orm"),
 }
 
