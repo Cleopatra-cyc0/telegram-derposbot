@@ -23,7 +23,22 @@ export default function dokCommands(bot: Telegraf<MyTelegrafContext>) {
       if (res.ok) {
         const body = (await res.json()) as { status: string; data: { used_dok: number; dok_limit: number } }
         if (body.data.dok_limit > 0) {
-          await ctx.reply(`Je hebt €${body.data.used_dok / 100} van €${body.data.dok_limit / 100} gebruikt`)
+          const percent = body.data.used_dok / body.data.dok_limit
+          const suffix =
+            percent < 0.1
+              ? "Harder zuipen"
+              : percent < 0.3
+              ? "Dat kan wel wel wat harder nog"
+              : percent < 0.5
+              ? "Nog niet op de helft"
+              : percent < 0.7
+              ? "De sweet spot"
+              : percent < 0.9
+              ? "Nou kom je in de gevarenzone"
+              : percent < 0.96
+              ? "Geniet maar van die laatste"
+              : "Op is op, had je maar meer dok moeten hebben"
+          await ctx.reply(`Je hebt €${body.data.used_dok / 100} van €${body.data.dok_limit / 100} gebruikt, ${suffix}`)
         } else {
           await ctx.reply("Je hebt helemaal geen dok pikketrekker")
         }
