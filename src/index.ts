@@ -8,6 +8,7 @@ import localtunnel from "localtunnel"
 import Koa, { Context as KoaContext } from "koa"
 import bodyParser from "koa-bodyparser"
 import Router from "@koa/router"
+import { Server } from "http"
 import MikroOrm from "./database"
 import ChatSubscription, { SubScriptionType } from "./entities/ChatSubscription"
 import subscriptionCommands from "./commands/subscription"
@@ -36,6 +37,7 @@ export interface MyKoaContext extends KoaContext {
 
 // Create bot
 const bot = new Telegraf<MyTelegrafContext>(telegramToken)
+let koaServer: Server
 
 bot.use(async (ctx, next) => {
   const time = track()
@@ -98,7 +100,7 @@ dokCommands(bot)
   router.get("/oauth/congressus", congressusOAuthHandler)
 
   app.use(router.middleware())
-  app.listen(process.env.DEV_PORT ?? 80)
+  koaServer = app.listen(process.env.DEV_PORT ?? 80)
 
   logger.trace("launch")
   const subs = await (await MikroOrm).em.fork().find(ChatSubscription, { type: SubScriptionType.Status })
@@ -110,14 +112,14 @@ dokCommands(bot)
   }
 })()
 
-const gracefulStop = async (reason: string) => {
+const gracefulStop = async () => {
   logger.info("Stopping due to kernel signal")
-  bot.stop(reason)
+  koaServer?.close()
   stopCronJob()
   await (await MikroOrm).close(true)
   process.exit(0)
 }
 
 // Enable gracefull bot stopping with ctrl-c
-process.once("SIGTERM", () => gracefulStop("SIGTERM"))
-process.once("SIGINT", () => gracefulStop("SIGINT"))
+process.once("SIGTERM", () => gracefulStop())
+process.once("SIGINT", () => gracefulStop())
