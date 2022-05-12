@@ -19,22 +19,33 @@ if (isNaN(announcementChatId)) {
 enum AnnouncementReply {
   Approve = "approve",
   Decline = "decline",
+
+  ConfirmReceived = "confirm_received",
 }
 
-const announcementQuestion = new TelegrafStatelessQuestion("Stuur nu je mededeling", async ctx => {
+const constructInlineKeyboard = (messageId: number, chatId?: number, includeConrifmRead = true) => [
+  [
+    {
+      text: "Ja",
+      callback_data: `APR-${JSON.stringify([AnnouncementReply.Approve, messageId, chatId])}`,
+    },
+    {
+      text: "Bevestig ontvangst",
+      callback_data: `APR-${JSON.stringify([AnnouncementReply.ConfirmReceived, messageId, chatId])}`,
+    },
+    {
+      text: "Nee",
+      callback_data: `APR-${JSON.stringify([AnnouncementReply.Decline, messageId, chatId])}`,
+    },
+  ].filter(a => a.text !== "Bevestig ontvangst" || includeConrifmRead),
+]
+
+const announcementQuestion = new TelegrafStatelessQuestion<MyTelegrafContext>("Stuur nu je mededeling", async ctx => {
   const forwardedMessage = await ctx.forwardMessage(announcementApprovalChatId)
   await ctx.telegram.sendMessage(announcementApprovalChatId, "Goedkeuren?", {
     reply_to_message_id: forwardedMessage.message_id,
     reply_markup: {
-      inline_keyboard: [
-        [
-          { text: "Ja", callback_data: `ANNOUNCEMENT-${AnnouncementReply.Approve}-${forwardedMessage.message_id}` },
-          {
-            text: "Nee",
-            callback_data: `ANNOUNCEMENT-${AnnouncementReply.Decline}-${forwardedMessage.message_id}`,
-          },
-        ],
-      ],
+      inline_keyboard: constructInlineKeyboard(forwardedMessage.message_id, ctx.chat?.id),
     },
   })
   await ctx.reply("Joe, ligt klaar voor goedkeuring", { reply_markup: { remove_keyboard: true } })
@@ -54,18 +65,25 @@ export default function announcementCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.on("callback_query", async (ctx, next) => {
     if (
       ctx.callbackQuery.data != null &&
-      ctx.callbackQuery.data.startsWith("ANNOUNCEMENT") &&
+      ctx.callbackQuery.data.startsWith("APR") &&
       !callbacksProcessing.has(ctx.callbackQuery.data)
     ) {
       callbacksProcessing.add(ctx.callbackQuery.data)
-      const [, action, messageIdStr] = ctx.callbackQuery.data.split("-")
-      const messageId = parseInt(messageIdStr)
-      if (!isNaN(messageId) && stringInEnum(action, AnnouncementReply)) {
-        await ctx.deleteMessage()
-        if (action === AnnouncementReply.Approve) {
-          await ctx.telegram.copyMessage(announcementChatId, announcementApprovalChatId, messageId)
-        } else if (action === AnnouncementReply.Decline) {
-          await ctx.deleteMessage(messageId)
+      const callbackData = JSON.parse(ctx.callbackQuery.data.slice(-4))
+      const [action, messageId, chatId] = callbackData
+      if (stringInEnum(action, AnnouncementReply)) {
+        if (action !== AnnouncementReply.ConfirmReceived) {
+          await ctx.deleteMessage()
+          if (action === AnnouncementReply.Approve) {
+            await ctx.telegram.copyMessage(announcementChatId, announcementApprovalChatId, messageId)
+          } else if (action === AnnouncementReply.Decline) {
+            await ctx.deleteMessage(messageId)
+          }
+        } else {
+          await ctx.editMessageReplyMarkup({
+            inline_keyboard: constructInlineKeyboard(messageId, chatId, false),
+          })
+          await ctx.telegram.sendMessage(chatId, "Bestuur heef je bericht gezien en is er mee bezig")
         }
       } else {
         logger.error({ callbackQuery: ctx.callbackQuery }, "invalid announcement callback data")
