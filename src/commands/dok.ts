@@ -15,7 +15,7 @@ export default function dokCommands(bot: Telegraf<MyTelegrafContext>) {
     const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id })
     if (user != null && user.congressusId != null) {
       const url = new URL("https://api.cleopatra-groningen.nl/api/dok_information")
-      url.searchParams.set("congressus_user_id", "279434")
+      url.searchParams.set("congressus_user_id", user.congressusId.toString())
       url.searchParams.set("secret", dokApiSecret)
       const res = await fetch(url, {
         method: "GET",
