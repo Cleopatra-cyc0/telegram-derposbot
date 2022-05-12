@@ -30,14 +30,18 @@ const constructInlineKeyboard = (messageId: number, chatId?: number, includeConr
       callback_data: `APR-${JSON.stringify([AnnouncementReply.Approve, messageId, chatId])}`,
     },
     {
-      text: "Bevestig ontvangst",
-      callback_data: `APR-${JSON.stringify([AnnouncementReply.ConfirmReceived, messageId, chatId])}`,
-    },
-    {
       text: "Nee",
       callback_data: `APR-${JSON.stringify([AnnouncementReply.Decline, messageId, chatId])}`,
     },
-  ].filter(a => a.text !== "Bevestig ontvangst" || includeConrifmRead),
+  ],
+  includeConrifmRead
+    ? [
+        {
+          text: "Gelezen",
+          callback_data: `APR-${JSON.stringify([AnnouncementReply.ConfirmReceived, messageId, chatId])}`,
+        },
+      ]
+    : [],
 ]
 
 const announcementQuestion = new TelegrafStatelessQuestion<MyTelegrafContext>("Stuur nu je mededeling", async ctx => {
