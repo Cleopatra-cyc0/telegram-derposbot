@@ -22,7 +22,7 @@ const config: Options<PostgreSqlDriver> = {
     disableForeignKeys: false,
   },
   debug: true,
-  logger: msg => logger.trace({ mikroOrm: msg }, "micro-orm"),
+  // logger: msg => logger.trace({ mikroOrm: msg }, "micro-orm"),
 }
 
 export default config
