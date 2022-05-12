@@ -43,8 +43,8 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
     }
   })
 
-  bot.command("dok", async ctx => {
-    await ctx.reply("Dus jij wil dok zien?")
+  bot.command("dock", async ctx => {
+    await ctx.reply("Dus jij wil dock zien?")
     await sleep(1000)
     if (ctx.chat.type === "private") {
       await ctx.replyWithPhoto("https://cumception.com/wp-content/upload/2020/06/cock_docki-5965.jpg")

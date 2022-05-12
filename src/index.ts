@@ -16,6 +16,7 @@ import triviaCommands from "./commands/trivia"
 import shitCommands from "./commands/shit"
 import { congressusOAuthHandler, userCommands } from "./commands/user"
 import announcementCommands from "./commands/announcement"
+import dokCommands from "./commands/dok"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -62,6 +63,7 @@ subscriptionCommands(bot)
 shitCommands(bot)
 userCommands(bot)
 announcementCommands(bot)
+dokCommands(bot)
 ;(async () => {
   let domain
   if (process.env.WEBHOOK_DOMAIN != null && process.env.WEBHOOK_DOMAIN != "") {
