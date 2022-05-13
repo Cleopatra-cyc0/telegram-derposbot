@@ -17,7 +17,7 @@ import triviaCommands from "./commands/trivia"
 import shitCommands from "./commands/shit"
 import { congressusOAuthHandler, userCommands } from "./commands/user"
 import announcementCommands from "./commands/announcement"
-import dokCommands from "./commands/dok"
+import dokCommands, { dokHandler } from "./commands/dok"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -96,6 +96,7 @@ dokCommands(bot)
     }
     ctx.status = 200
   })
+  router.post("/dok_payment", dokHandler)
 
   router.get("/oauth/congressus", congressusOAuthHandler)
 

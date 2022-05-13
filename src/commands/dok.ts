@@ -1,6 +1,6 @@
 import fetch from "node-fetch"
 import { Telegraf } from "telegraf"
-import { MyTelegrafContext } from ".."
+import { MyKoaContext, MyTelegrafContext } from ".."
 import User from "../entities/User"
 import logger from "../log"
 
@@ -56,4 +56,8 @@ export default function dokCommands(bot: Telegraf<MyTelegrafContext>) {
       await ctx.reply("Moet prive")
     }
   })
+}
+
+export function dokHandler(ctx: MyKoaContext) {
+  logger.info({ request: ctx.request }, "dok call")
 }
