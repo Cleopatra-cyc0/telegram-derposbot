@@ -115,18 +115,10 @@
           "nullable": false,
           "enumItems": [
             "message",
-            "forwardMessage"
+            "forwardMessage",
+            "deleteMessage"
           ],
           "mappedType": "enum"
-        },
-        "chat_id": {
-          "name": "chat_id",
-          "type": "bigint",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "bigint"
         },
         "message": {
           "name": "message",
@@ -172,6 +164,24 @@
           "primary": false,
           "nullable": true,
           "mappedType": "boolean"
+        },
+        "chat_id": {
+          "name": "chat_id",
+          "type": "bigint",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "bigint"
+        },
+        "message_id": {
+          "name": "message_id",
+          "type": "bigint",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "bigint"
         }
       },
       "name": "task",

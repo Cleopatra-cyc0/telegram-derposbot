@@ -93,3 +93,22 @@ export class ForwardMessageTask extends Task {
     }
   }
 }
+
+@Entity({ discriminatorValue: "deleteMessage" })
+export class DeleteMessageTask extends Task {
+  @Property({ type: "bigint" })
+  chatId!: number
+
+  @Property({ type: "bigint" })
+  messageId!: number
+
+  constructor(runDate: DateTime, chatId: number, messageId: number) {
+    super(runDate)
+    this.chatId = chatId
+    this.messageId = messageId
+  }
+
+  async run(telegram: Telegram) {
+    await telegram.deleteMessage(this.chatId, this.messageId)
+  }
+}

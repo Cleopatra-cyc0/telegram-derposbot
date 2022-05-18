@@ -52,7 +52,7 @@ export function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O):
   return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[]
 }
 
-export function stringInEnum(str: string, e: object) {
+export function isMemberOfEnum(str: string | number, e: object) {
   for (const key of enumKeys(e)) {
     if (str === e[key]) {
       return true
