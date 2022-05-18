@@ -52,7 +52,7 @@ const constructInitialInlineKeyboard = (messageId: number) => [
 
 const constructScheduleInlineKeyboard = (messageId: number, now: DateTime) => {
   const options = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    .map(h => now.plus({ minutes: h }))
+    .map(h => now.plus({ minutes: h * 30 }))
     .map(t => ({
       text: t.toLocaleString(DateTime.TIME_24_SIMPLE),
       callback_data: `APR-${JSON.stringify([AnnouncementReply.ScheduleAnswer, messageId, t.toMillis()])}`,
