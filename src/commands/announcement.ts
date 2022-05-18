@@ -1,8 +1,10 @@
+import { DateTime } from "luxon"
 import { Telegraf } from "telegraf"
 import TelegrafStatelessQuestion from "telegraf-stateless-question/dist/source"
 import { MyTelegrafContext } from ".."
+import { MessageTask } from "../entities/Task"
 import logger from "../log"
-import { stringInEnum } from "../util"
+import { getRandomInRange, stringInEnum } from "../util"
 
 const announcementApprovalChatId = parseInt(process.env.ANNOUNCEMENT_APPROVAL_CHAT_ID ?? "")
 const announcementChatId = parseInt(process.env.ANNOUNCEMENT_CHAT_ID ?? "")
@@ -19,40 +21,42 @@ if (isNaN(announcementChatId)) {
 enum AnnouncementReply {
   Approve = "approve",
   Decline = "decline",
-
-  ConfirmReceived = "confirm_received",
 }
 
-const constructInlineKeyboard = (messageId: number, chatId?: number, includeConrifmRead = true) => [
+const constructInlineKeyboard = (messageId: number) => [
   [
     {
       text: "Ja",
-      callback_data: `APR-${JSON.stringify([AnnouncementReply.Approve, messageId, chatId])}`,
+      callback_data: `APR-${JSON.stringify([AnnouncementReply.Approve, messageId])}`,
     },
     {
       text: "Nee",
-      callback_data: `APR-${JSON.stringify([AnnouncementReply.Decline, messageId, chatId])}`,
+      callback_data: `APR-${JSON.stringify([AnnouncementReply.Decline, messageId])}`,
     },
   ],
-  includeConrifmRead
-    ? [
-        {
-          text: "Gelezen",
-          callback_data: `APR-${JSON.stringify([AnnouncementReply.ConfirmReceived, messageId, chatId])}`,
-        },
-      ]
-    : [],
 ]
 
 const announcementQuestion = new TelegrafStatelessQuestion<MyTelegrafContext>("Stuur nu je mededeling", async ctx => {
-  const forwardedMessage = await ctx.forwardMessage(announcementApprovalChatId)
-  await ctx.telegram.sendMessage(announcementApprovalChatId, "Goedkeuren?", {
-    reply_to_message_id: forwardedMessage.message_id,
-    reply_markup: {
-      inline_keyboard: constructInlineKeyboard(forwardedMessage.message_id, ctx.chat?.id),
-    },
-  })
-  await ctx.reply("Joe, ligt klaar voor goedkeuring", { reply_markup: { remove_keyboard: true } })
+  if (ctx.chat != null) {
+    const forwardedMessage = await ctx.forwardMessage(announcementApprovalChatId)
+    await ctx.telegram.sendMessage(announcementApprovalChatId, "Goedkeuren?", {
+      reply_to_message_id: forwardedMessage.message_id,
+      reply_markup: {
+        inline_keyboard: constructInlineKeyboard(forwardedMessage.message_id),
+      },
+    })
+    await ctx.reply("Joe, ligt klaar voor goedkeuring", { reply_markup: { remove_keyboard: true } })
+
+    const reportSeenMessageTask = new MessageTask(
+      DateTime.now().plus({ minutes: getRandomInRange(5, 20, 0) }),
+      ctx.chat.id,
+      "Bestuur heef je bericht gezien en is er mee bezig",
+    )
+    ctx.db.persist(reportSeenMessageTask)
+  } else {
+    logger.error({ message: ctx.message }, "Received message without chat attached")
+    await ctx.reply("Er gaat nu wel iets raars mis hoor, sorry")
+  }
 })
 
 export default function announcementCommands(bot: Telegraf<MyTelegrafContext>) {
@@ -75,20 +79,13 @@ export default function announcementCommands(bot: Telegraf<MyTelegrafContext>) {
       callbacksProcessing.add(ctx.callbackQuery.data)
       const jsonStr = ctx.callbackQuery.data.slice(4)
       const callbackData = JSON.parse(jsonStr)
-      const [action, messageId, chatId] = callbackData
+      const [action, messageId] = callbackData
       if (stringInEnum(action, AnnouncementReply)) {
-        if (action !== AnnouncementReply.ConfirmReceived) {
-          await ctx.deleteMessage()
-          if (action === AnnouncementReply.Approve) {
-            await ctx.telegram.copyMessage(announcementChatId, announcementApprovalChatId, messageId)
-          } else if (action === AnnouncementReply.Decline) {
-            await ctx.deleteMessage(messageId)
-          }
-        } else {
-          await ctx.editMessageReplyMarkup({
-            inline_keyboard: constructInlineKeyboard(messageId, chatId, false),
-          })
-          await ctx.telegram.sendMessage(chatId, "Bestuur heef je bericht gezien en is er mee bezig")
+        await ctx.deleteMessage()
+        if (action === AnnouncementReply.Approve) {
+          await ctx.telegram.copyMessage(announcementChatId, announcementApprovalChatId, messageId)
+        } else if (action === AnnouncementReply.Decline) {
+          await ctx.deleteMessage(messageId)
         }
       } else {
         logger.error({ callbackQuery: ctx.callbackQuery }, "invalid announcement callback data")
