@@ -1,10 +1,11 @@
 import { DateTime } from "luxon"
 import { Telegraf } from "telegraf"
 import TelegrafStatelessQuestion from "telegraf-stateless-question/dist/source"
+import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram"
 import { MyTelegrafContext } from ".."
-import { MessageTask } from "../entities/Task"
+import { DeleteMessageTask, ForwardMessageTask, MessageTask, Task } from "../entities/Task"
 import logger from "../log"
-import { getRandomInRange, stringInEnum } from "../util"
+import { getRandomInRange, isMemberOfEnum } from "../util"
 
 const announcementApprovalChatId = parseInt(process.env.ANNOUNCEMENT_APPROVAL_CHAT_ID ?? "")
 const announcementChatId = parseInt(process.env.ANNOUNCEMENT_CHAT_ID ?? "")
@@ -19,16 +20,29 @@ if (isNaN(announcementChatId)) {
 }
 
 enum AnnouncementReply {
-  Approve = "approve",
-  Decline = "decline",
+  Approve,
+  Decline,
+  Schedule,
+
+  ScheduleAnswer,
+
+  ScheduleOptionCancel,
+
+  ScheduleCancel,
 }
 
-const constructInlineKeyboard = (messageId: number) => [
+const constructInitialInlineKeyboard = (messageId: number) => [
   [
     {
       text: "Ja",
       callback_data: `APR-${JSON.stringify([AnnouncementReply.Approve, messageId])}`,
     },
+    {
+      text: "Later",
+      callback_data: `APR-${JSON.stringify([AnnouncementReply.Schedule, messageId])}`,
+    },
+  ],
+  [
     {
       text: "Nee",
       callback_data: `APR-${JSON.stringify([AnnouncementReply.Decline, messageId])}`,
@@ -36,13 +50,39 @@ const constructInlineKeyboard = (messageId: number) => [
   ],
 ]
 
+const constructScheduleInlineKeyboard = (messageId: number, now: DateTime) => {
+  const options = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    .map(h => now.plus({ minutes: h }))
+    .map(t => ({
+      text: t.toLocaleString(DateTime.TIME_24_SIMPLE),
+      callback_data: `APR-${JSON.stringify([AnnouncementReply.ScheduleAnswer, messageId, t.toMillis()])}`,
+    }))
+  const optionRows: InlineKeyboardButton[][] = [
+    [
+      {
+        text: "Toch niet",
+        callback_data: `APR-${JSON.stringify([AnnouncementReply.ScheduleOptionCancel, messageId])}`,
+      },
+    ],
+    [],
+  ]
+  options.forEach(opt => {
+    if (optionRows[optionRows.length - 1].length < 3) {
+      optionRows[optionRows.length - 1].push(opt)
+    } else {
+      optionRows.push([opt])
+    }
+  })
+  return optionRows
+}
+
 const announcementQuestion = new TelegrafStatelessQuestion<MyTelegrafContext>("Stuur nu je mededeling", async ctx => {
   if (ctx.chat != null) {
     const forwardedMessage = await ctx.forwardMessage(announcementApprovalChatId)
     await ctx.telegram.sendMessage(announcementApprovalChatId, "Goedkeuren?", {
       reply_to_message_id: forwardedMessage.message_id,
       reply_markup: {
-        inline_keyboard: constructInlineKeyboard(forwardedMessage.message_id),
+        inline_keyboard: constructInitialInlineKeyboard(forwardedMessage.message_id),
       },
     })
     await ctx.reply("Joe, ligt klaar voor goedkeuring", { reply_markup: { remove_keyboard: true } })
@@ -79,13 +119,64 @@ export default function announcementCommands(bot: Telegraf<MyTelegrafContext>) {
       callbacksProcessing.add(ctx.callbackQuery.data)
       const jsonStr = ctx.callbackQuery.data.slice(4)
       const callbackData = JSON.parse(jsonStr)
-      const [action, messageId] = callbackData
-      if (stringInEnum(action, AnnouncementReply)) {
-        await ctx.deleteMessage()
+      const [action, messageId, extraPayload] = callbackData as [
+        AnnouncementReply,
+        number,
+        number | [number, number] | undefined,
+      ]
+      if (isMemberOfEnum(action, AnnouncementReply)) {
         if (action === AnnouncementReply.Approve) {
+          await ctx.deleteMessage()
           await ctx.telegram.copyMessage(announcementChatId, announcementApprovalChatId, messageId)
         } else if (action === AnnouncementReply.Decline) {
+          await ctx.deleteMessage()
           await ctx.deleteMessage(messageId)
+        } else if (action === AnnouncementReply.Schedule) {
+          await ctx.editMessageReplyMarkup({
+            inline_keyboard: constructScheduleInlineKeyboard(messageId, DateTime.now()),
+          })
+        } else if (action === AnnouncementReply.ScheduleAnswer && typeof extraPayload === "number") {
+          const scheduledAnnouncementTask = new ForwardMessageTask(
+            DateTime.fromMillis(extraPayload),
+            announcementApprovalChatId,
+            messageId,
+            announcementChatId,
+            true,
+          )
+          const deleteApprovalMessageTask = new DeleteMessageTask(
+            DateTime.fromMillis(extraPayload),
+            ctx.chat?.id as number,
+            ctx.callbackQuery.message?.message_id as number,
+          )
+          await ctx.db.persist([scheduledAnnouncementTask, deleteApprovalMessageTask]).flush()
+
+          await ctx.editMessageText(
+            `Gaat om ${DateTime.fromMillis(extraPayload).toLocaleString(DateTime.TIME_24_SIMPLE)}`,
+          )
+          await ctx.editMessageReplyMarkup({
+            inline_keyboard: [
+              [
+                {
+                  text: "Annuleer",
+                  callback_data: `APR-${JSON.stringify([
+                    AnnouncementReply.ScheduleCancel,
+                    messageId,
+                    [scheduledAnnouncementTask.id, deleteApprovalMessageTask.id],
+                  ])}`,
+                },
+              ],
+            ],
+          })
+        } else if (action === AnnouncementReply.ScheduleOptionCancel) {
+          await ctx.editMessageReplyMarkup({
+            inline_keyboard: constructInitialInlineKeyboard(messageId),
+          })
+        } else if (action === AnnouncementReply.ScheduleCancel && Array.isArray(extraPayload)) {
+          const task = await ctx.db.find(Task, { id: { $in: extraPayload } })
+
+          ctx.db.remove(task)
+
+          ctx.editMessageReplyMarkup({ inline_keyboard: constructInitialInlineKeyboard(messageId) })
         }
       } else {
         logger.error({ callbackQuery: ctx.callbackQuery }, "invalid announcement callback data")
