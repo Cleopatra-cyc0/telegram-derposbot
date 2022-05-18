@@ -4,6 +4,7 @@
   "plugins": ["@typescript-eslint"],
   "extends": ["plugin:promise/recommended", "plugin:@typescript-eslint/recommended", "prettier"],
   "rules": {
-    "promise/always-return": "off"
+    "promise/always-return": "off",
+    "@typescript-eslint/no-inferrable-types": "warn"
   }
 }
