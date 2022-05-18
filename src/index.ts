@@ -18,6 +18,7 @@ import shitCommands from "./commands/shit"
 import { congressusOAuthHandler, userCommands } from "./commands/user"
 import announcementCommands from "./commands/announcement"
 import dokCommands, { dokHandler } from "./commands/dok"
+import { startTaskRunner } from "./taskRunner"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -60,6 +61,7 @@ bot.use(async (ctx, next) => {
 })
 
 const stopCronJob = birthdayCommands(bot)
+const stopTaskRunner = startTaskRunner(bot.telegram)
 triviaCommands(bot)
 subscriptionCommands(bot)
 shitCommands(bot)
@@ -117,6 +119,7 @@ const gracefulStop = async () => {
   logger.info("Stopping due to kernel signal")
   koaServer?.close()
   stopCronJob()
+  stopTaskRunner()
   await (await MikroOrm).close(true)
   process.exit(0)
 }

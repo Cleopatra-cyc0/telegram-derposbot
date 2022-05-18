@@ -122,6 +122,6 @@ export function getRandomLocation() {
   }
 }
 
-function getRandomInRange(from: number, to: number, decimalPlaces: number) {
+export function getRandomInRange(from: number, to: number, decimalPlaces: number) {
   return Math.round((Math.random() * (to - from) + from) * Math.pow(10, decimalPlaces)) / Math.pow(10, decimalPlaces)
 }
