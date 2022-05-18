@@ -1,5 +1,5 @@
 import { Type, ValidationError } from "@mikro-orm/core"
-import { DateTime, Interval } from "luxon"
+import { DateTime, Duration, Interval } from "luxon"
 
 /**
  * Checks whether the provided date is the same date as another
@@ -75,6 +75,33 @@ export class LuxonDate extends Type<DateTime | undefined, string | undefined> {
   convertToJSValue(value: string | undefined): DateTime | undefined {
     if (value != null) {
       return DateTime.fromISO(value)
+    } else {
+      return value
+    }
+  }
+  getColumnType(): string {
+    return "varchar(30)"
+  }
+
+  compareAsType(): string {
+    return "string"
+  }
+}
+
+export class LuxonDuration extends Type<Duration | undefined, string | undefined> {
+  convertToDatabaseValue(value: Duration | string | undefined): string | undefined {
+    if (value instanceof Duration) {
+      return value.toISO()
+    } else if (typeof value === "string" || value == null) {
+      return value
+    } else {
+      throw ValidationError.invalidType(LuxonDate, value, "JS")
+    }
+  }
+
+  convertToJSValue(value: string | undefined): Duration | undefined {
+    if (value != null) {
+      return Duration.fromISO(value)
     } else {
       return value
     }
