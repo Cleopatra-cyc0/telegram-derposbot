@@ -26,7 +26,7 @@ export default class User {
   @Unique()
   telegramPrivateChatId?: number
 
-  @Property()
+  @Property({ default: false })
   hasDokNotifications = false
 
   @OneToMany(() => Shit, shit => shit.user)
