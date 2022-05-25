@@ -1,5 +1,5 @@
 import "dotenv/config"
-import { Context as TelegrafContext, Telegraf } from "telegraf"
+import { Context as TelegrafContext, Telegraf, Telegram } from "telegraf"
 import logger, { track } from "./log"
 import { Settings } from "luxon"
 import { EntityManager } from "@mikro-orm/core"
@@ -34,6 +34,7 @@ export interface MyTelegrafContext extends TelegrafContext {
 
 export interface MyKoaContext extends KoaContext {
   db: EntityManager<PostgreSqlDriver>
+  telegram: Telegram
 }
 
 // Create bot
@@ -86,6 +87,7 @@ dokCommands(bot)
   app.use(bodyParser())
   app.use(async (ctx, next) => {
     ctx.db = (await MikroOrm).em.fork()
+    ctx.telegram = bot.telegram
     await next()
     await ctx.db.flush()
   })
