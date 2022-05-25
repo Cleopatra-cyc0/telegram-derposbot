@@ -56,8 +56,75 @@ export default function dokCommands(bot: Telegraf<MyTelegrafContext>) {
       await ctx.reply("Moet prive")
     }
   })
+
+  bot.command("ikwilmndokhoren", async ctx => {
+    if (ctx.message.chat.type === "private") {
+      const user = (await ctx.db.findOne(User, { telegramId: ctx.message.from.id })) as User
+      if (user.congressusId != null) {
+        if (!user.hasDokNotifications) {
+          user.hasDokNotifications = true
+          ctx.db.persist(user)
+          await ctx.reply("Joe")
+        } else {
+          await ctx.reply("Had je al grappenmaker")
+        }
+      } else {
+        await ctx.reply("Je moet eerst connecten")
+      }
+    } else {
+      await ctx.reply("Kan alleen prive")
+    }
+  })
+
+  bot.command("kappenmetdok", async ctx => {
+    if (ctx.message.chat.type === "private") {
+      const user = (await ctx.db.findOne(User, { telegramId: ctx.message.from.id })) as User
+      if (user.hasDokNotifications) {
+        user.hasDokNotifications = false
+        ctx.db.persist(user)
+        await ctx.reply("Joe")
+      } else {
+        await ctx.reply("Had je al niet grappenmaker")
+      }
+    } else {
+      await ctx.reply("Kan alleen prive")
+    }
+  })
 }
 
-export function dokHandler(ctx: MyKoaContext) {
+export async function dokHandler(ctx: MyKoaContext) {
   logger.info({ request: ctx.request }, "dok call")
+
+  const body = ctx.request.body as undefined | DokNotificationPayload
+  if (body) {
+    const user = await ctx.db.findOne(User, { congressusId: body?.congressus_user_id })
+
+    if (user && user.hasDokNotifications) {
+      let message = `Er is net op je gedokt voor ${body?.total_amount / 100}:\n`
+      for (const product of body.products) {
+        message += `- ${product.quantity} ${product.product} voor: ${product.price}`
+      }
+      const chatId = user.telegramPrivateChatId ?? user.telegramId
+      try {
+        await ctx.telegram.sendMessage(chatId, message)
+        ctx.res.statusCode = 201
+      } catch (error) {
+        ctx.res.statusCode = 500
+        logger.error({ error }, "Error sending DOK notification")
+      }
+    } else {
+      ctx.res.statusCode = 200
+    }
+  } else {
+    ctx.res.statusCode = 400
+    logger.error("Invalid DOK notification webhook request")
+  }
+
+  ctx.res.end()
+}
+
+type DokNotificationPayload = {
+  congressus_user_id: number
+  total_amount: number
+  products: [{ product: "Bier"; quantity: number; price: number }]
 }

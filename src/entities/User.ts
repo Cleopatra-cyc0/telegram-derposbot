@@ -26,6 +26,9 @@ export default class User {
   @Unique()
   telegramPrivateChatId?: number
 
+  @Property()
+  hasDokNotifications = false
+
   @OneToMany(() => Shit, shit => shit.user)
   shits = new Collection<Shit>(this)
 }
