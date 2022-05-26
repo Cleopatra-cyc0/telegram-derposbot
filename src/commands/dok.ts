@@ -108,12 +108,14 @@ export async function dokHandler(ctx: MyKoaContext) {
       try {
         await ctx.telegram.sendMessage(chatId, message)
         ctx.res.statusCode = 201
+        logger.trace({ user, dokInfo: body }, "Sent dok notification")
       } catch (error) {
         ctx.res.statusCode = 500
         logger.error({ error }, "Error sending DOK notification")
       }
     } else {
       ctx.res.statusCode = 200
+      logger.trace({ user, dokInfo: body }, "Received dok notifiaction for unsubscribed user")
     }
   } else {
     ctx.res.statusCode = 400
