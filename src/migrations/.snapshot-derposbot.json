@@ -230,6 +230,15 @@
           "nullable": false,
           "mappedType": "integer"
         },
+        "type": {
+          "name": "type",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
         "date": {
           "name": "date",
           "type": "varchar(30)",
@@ -249,11 +258,11 @@
           "mappedType": "bigint"
         }
       },
-      "name": "shit",
+      "name": "stat",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "shit_pkey",
+          "keyName": "stat_pkey",
           "columnNames": [
             "id"
           ],
@@ -264,12 +273,12 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "shit_user_telegram_id_foreign": {
-          "constraintName": "shit_user_telegram_id_foreign",
+        "stat_user_telegram_id_foreign": {
+          "constraintName": "stat_user_telegram_id_foreign",
           "columnNames": [
             "user_telegram_id"
           ],
-          "localTableName": "public.shit",
+          "localTableName": "public.stat",
           "referencedColumnNames": [
             "telegram_id"
           ],

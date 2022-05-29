@@ -1,7 +1,7 @@
 import { Collection, Entity, EntityRepositoryType, OneToMany, PrimaryKey, Property, Unique } from "@mikro-orm/core"
 import { EntityRepository } from "@mikro-orm/postgresql"
 import logger from "../log"
-import Shit from "./Shit"
+import Stat from "./Stat"
 
 @Entity({ customRepository: () => CustomUserRepository })
 export default class User {
@@ -29,8 +29,8 @@ export default class User {
   @Property({ default: false })
   hasDokNotifications = false
 
-  @OneToMany(() => Shit, shit => shit.user)
-  shits = new Collection<Shit>(this)
+  @OneToMany(() => Stat, shit => shit.user)
+  stats = new Collection<Stat>(this)
 }
 
 export class CustomUserRepository extends EntityRepository<User> {
