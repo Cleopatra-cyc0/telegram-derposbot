@@ -4,14 +4,17 @@ import { LuxonDate } from "../util"
 import User from "./User"
 
 @Entity()
-export default class Shit {
-  constructor(user: User) {
+export default class Stat {
+  constructor(user: User, type: string) {
     this.user = user
   }
   @PrimaryKey({
     autoincrement: true,
   })
   id!: number
+
+  @Property()
+  type!: string
 
   @Property({ type: LuxonDate })
   date = DateTime.now()

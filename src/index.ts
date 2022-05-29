@@ -14,7 +14,7 @@ import ChatSubscription, { SubScriptionType } from "./entities/ChatSubscription"
 import subscriptionCommands from "./commands/subscription"
 import birthdayCommands from "./commands/birthday"
 import triviaCommands from "./commands/trivia"
-import shitCommands from "./commands/shit"
+import recordStat from "./commands/stat"
 import { congressusOAuthHandler, userCommands } from "./commands/user"
 import announcementCommands from "./commands/announcement"
 import dokCommands, { dokHandler } from "./commands/dok"
@@ -65,7 +65,8 @@ const stopCronJob = birthdayCommands(bot)
 const stopTaskRunner = startTaskRunner(bot.telegram)
 triviaCommands(bot)
 subscriptionCommands(bot)
-shitCommands(bot)
+recordStat(bot, "shit", "poep", "poepsie", "poepstats")
+recordStat(bot, "blowjob", "pijp", "pijpsie", "pijpstats")
 userCommands(bot)
 announcementCommands(bot)
 dokCommands(bot)
