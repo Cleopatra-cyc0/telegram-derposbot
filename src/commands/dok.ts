@@ -100,9 +100,9 @@ export async function dokHandler(ctx: MyKoaContext) {
     const user = await ctx.db.findOne(User, { congressusId: body?.congressus_user_id })
 
     if (user && user.hasDokNotifications) {
-      let message = `Er is net op je gedokt voor ${body?.total_amount / 100}:\n`
+      let message = `Er is net op je gedokt voor €${(body?.total_amount / 100).toFixed(2)}:`
       for (const product of body.products) {
-        message += `- ${product.quantity} ${product.product} voor: ${product.price}`
+        message += `\n- ${product.quantity} ${product.product} voor: €${(product.price / 100).toFixed(2)}`
       }
       const chatId = user.telegramPrivateChatId ?? user.telegramId
       try {
