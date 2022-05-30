@@ -7,6 +7,7 @@ import User from "./User"
 export default class Stat {
   constructor(user: User, type: string) {
     this.user = user
+    this.type = type
   }
   @PrimaryKey({
     autoincrement: true,
