@@ -3,8 +3,10 @@ import { MyTelegrafContext } from ".."
 import logger from "../log"
 import ChatSubscription, { SubScriptionType } from "../entities/ChatSubscription"
 import { enumKeys } from "../util"
+import { registerCommand } from "./commandlist"
 
 export default function subscriptionCommands(bot: Telegraf<MyTelegrafContext>) {
+  registerCommand("subscribe", `Subscribe voor een type notification (${Object.values(SubScriptionType).join(", ")})`)
   bot.command("subscribe", async ctx => {
     const typeRaw = ctx.message.text.split(" ")[1]?.toLowerCase()
     let type: SubScriptionType | null = null
@@ -38,6 +40,11 @@ export default function subscriptionCommands(bot: Telegraf<MyTelegrafContext>) {
       ctx.reply("mag niet")
     }
   })
+
+  registerCommand(
+    "unsubscribe",
+    `Unsubscribe voor een type notification (${Object.values(SubScriptionType).join(", ")})`,
+  )
   bot.command("unsubscribe", async ctx => {
     const typeRaw = ctx.message.text.split(" ")[1]?.toLowerCase()
     let type: SubScriptionType | null = null
