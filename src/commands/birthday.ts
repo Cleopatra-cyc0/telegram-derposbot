@@ -7,14 +7,16 @@ import User from "../entities/User"
 import logger, { track } from "../log"
 import { getBirthDayMembers, getMemberBirthDate } from "../model"
 import { calculateDaysTillBirthDay, ErrorType, MyError } from "../util"
+import { registerCommand } from "./commandlist"
 
 export default function birthdayCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.command("birthday", async ctx => {
     await ctx.reply("die is vervangen door /wieiserjarig en /mijnverjaardag")
   })
-
+  registerCommand("wieiserjarig", "Vertelt wie er vandaag jarig zijn")
   bot.command("wieiserjarig", ctx => sendBirthdayMessage(bot, ctx))
 
+  registerCommand("mijnverjaardag", "Hoe lang nog tot je jarig bent")
   bot.command("mijnverjaardag", async ctx => {
     const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id })
     if (user != null && user.congressusId != null) {

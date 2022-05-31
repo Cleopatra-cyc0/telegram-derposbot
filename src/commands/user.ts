@@ -5,6 +5,7 @@ import { v4 as uuid4 } from "uuid"
 import logger from "../log"
 import fetch from "node-fetch"
 import { URL } from "node:url"
+import { registerCommand } from "./commandlist"
 
 const congressusDomain = process.env.CONGRESSUS_DOMAIN
 const congressusClientId = process.env.CONGRESSUS_CLIENT_ID
@@ -38,6 +39,7 @@ export function userCommands(bot: Telegraf<MyTelegrafContext>) {
     }
     await next()
   })
+  registerCommand("connect", "verbind congressus met telegram")
   bot.command("connect", async ctx => {
     if (ctx.chat.type === "private") {
       const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)
@@ -58,6 +60,7 @@ export function userCommands(bot: Telegraf<MyTelegrafContext>) {
     }
   })
 
+  registerCommand("disconnect", "verwijder je verbinding tussen congressus en telegram")
   bot.command("disconnect", async ctx => {
     const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id })
     if (user != null) {

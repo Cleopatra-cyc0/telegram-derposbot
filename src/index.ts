@@ -19,6 +19,7 @@ import { congressusOAuthHandler, userCommands } from "./commands/user"
 import announcementCommands from "./commands/announcement"
 import dokCommands, { dokHandler } from "./commands/dok"
 import { startTaskRunner } from "./taskRunner"
+import commandListCommands from "./commands/commandlist"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -70,6 +71,7 @@ recordStat(bot, "blowjob", "pijp", "pijpsie", "pijpstats")
 userCommands(bot)
 announcementCommands(bot)
 dokCommands(bot)
+commandListCommands(bot)
 ;(async () => {
   let domain
   if (process.env.WEBHOOK_DOMAIN != null && process.env.WEBHOOK_DOMAIN != "") {
