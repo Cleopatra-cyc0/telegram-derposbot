@@ -28,7 +28,7 @@ export default async function recordStat(
     }
     await ctx.db.persist(stat).flush()
     logger.trace({ user, type }, "new stat")
-    const count = await ctx.db.count(Stat, { user })
+    const count = await ctx.db.count(Stat, { user, type })
     if (Math.random() > 0.95) {
       await ctx.reply(`Gast doe normaal, al ${count}`)
     } else {
