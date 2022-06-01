@@ -6,7 +6,7 @@ import { MyTelegrafContext } from ".."
 import { DeleteMessageTask, ForwardMessageTask, MessageTask, Task } from "../entities/Task"
 import logger from "../log"
 import { getRandomInRange, isMemberOfEnum } from "../util"
-import { registerCommand } from "./commandlist"
+import { BotCommandScope, registerCommand } from "./commandlist"
 
 const announcementApprovalChatId = parseInt(process.env.ANNOUNCEMENT_APPROVAL_CHAT_ID ?? "")
 const announcementChatId = parseInt(process.env.ANNOUNCEMENT_CHAT_ID ?? "")
@@ -102,7 +102,7 @@ const announcementQuestion = new TelegrafStatelessQuestion<MyTelegrafContext>("S
 
 export default function announcementCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.use(announcementQuestion.middleware())
-  registerCommand("mededeling", "Stuur een mededeling naar bestuur")
+  registerCommand("mededeling", "Stuur een mededeling naar bestuur", BotCommandScope.Private)
   bot.command("mededeling", async ctx => {
     if (ctx.chat.type === "private") {
       await announcementQuestion.replyWithMarkdown(ctx, "Stuur nu je mededeling")

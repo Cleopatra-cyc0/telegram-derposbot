@@ -4,7 +4,7 @@ import { MyTelegrafContext } from ".."
 import Stat from "../entities/Stat"
 import User from "../entities/User"
 import logger from "../log"
-import { registerCommand } from "./commandlist"
+import { BotCommandScope, registerCommand } from "./commandlist"
 
 export default async function recordStat(
   bot: Telegraf<MyTelegrafContext>,
@@ -13,7 +13,11 @@ export default async function recordStat(
   undoCommand: string,
   infoCommand: string,
 ) {
-  registerCommand(recordCommand, `Sla een ${recordCommand}je op`)
+  registerCommand(recordCommand, `Sla een ${recordCommand}je op`, [
+    BotCommandScope.Private,
+    BotCommandScope.Groups,
+    BotCommandScope.Admins,
+  ])
   bot.command(recordCommand, async ctx => {
     const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)
     const alternateDate = DateTime.fromISO(ctx.message.text.trim().split(" ")[1])
@@ -32,7 +36,11 @@ export default async function recordStat(
     }
   })
 
-  registerCommand(recordCommand, `haal een ${recordCommand}je weg`)
+  registerCommand(recordCommand, `haal een ${recordCommand}je weg`, [
+    BotCommandScope.Private,
+    BotCommandScope.Groups,
+    BotCommandScope.Admins,
+  ])
   bot.command(undoCommand, async ctx => {
     const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id })
     const stats = await ctx.db.find(Stat, { user, type })
@@ -49,7 +57,11 @@ export default async function recordStat(
     }
   })
 
-  registerCommand(infoCommand, `Check je ${infoCommand}`)
+  registerCommand(infoCommand, `Check je ${infoCommand}`, [
+    BotCommandScope.Private,
+    BotCommandScope.Groups,
+    BotCommandScope.Admins,
+  ])
   bot.command(infoCommand, async ctx => {
     const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id })
     const stats = await ctx.db.find(Stat, { user, type })
