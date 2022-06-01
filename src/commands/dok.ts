@@ -3,7 +3,7 @@ import { Telegraf } from "telegraf"
 import { MyKoaContext, MyTelegrafContext } from ".."
 import User from "../entities/User"
 import logger from "../log"
-import { registerCommand } from "./commandlist"
+import { BotCommandScope, registerCommand } from "./commandlist"
 
 export default function dokCommands(bot: Telegraf<MyTelegrafContext>) {
   const dokApiSecret = process.env.DOK_SECRET
@@ -12,7 +12,7 @@ export default function dokCommands(bot: Telegraf<MyTelegrafContext>) {
     process.exit(8)
   }
 
-  registerCommand("dok", "check hoeveel dok je nog hebt")
+  registerCommand("dok", "check hoeveel dok je nog hebt", BotCommandScope.Private)
   bot.command("dok", async ctx => {
     if (ctx.chat.type === "private") {
       const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id })
@@ -59,7 +59,7 @@ export default function dokCommands(bot: Telegraf<MyTelegrafContext>) {
     }
   })
 
-  registerCommand("ikwilmndokhoren", "Krijg een bericht wanneer er op je gedokt wordt")
+  registerCommand("ikwilmndokhoren", "Krijg een bericht wanneer er op je gedokt wordt", BotCommandScope.Private)
   bot.command("ikwilmndokhoren", async ctx => {
     if (ctx.message.chat.type === "private") {
       const user = (await ctx.db.findOne(User, { telegramId: ctx.message.from.id })) as User
@@ -79,7 +79,7 @@ export default function dokCommands(bot: Telegraf<MyTelegrafContext>) {
     }
   })
 
-  registerCommand("kappenmetdok", "stop met het ontvangen van berichten van je dok")
+  registerCommand("kappenmetdok", "stop met het ontvangen van berichten van je dok", BotCommandScope.Private)
   bot.command("kappenmetdok", async ctx => {
     if (ctx.message.chat.type === "private") {
       const user = (await ctx.db.findOne(User, { telegramId: ctx.message.from.id })) as User
