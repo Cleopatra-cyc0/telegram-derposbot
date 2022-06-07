@@ -33,7 +33,6 @@
   },
   "devDependencies": {
     "@mikro-orm/cli": "^5.1.3",
-    "@tsconfig/node18": "^1.0.0",
     "@types/cron": "^1.7.3",
     "@types/koa": "^2.13.4",
     "@types/koa__router": "^8.0.11",
@@ -51,9 +50,10 @@
     "typescript": "4.7"
   },
   "mikro-orm": {
-    "useTsNode": true,
+    "useTsNode": false,
     "configPaths": [
-      "./src/mikro-orm.config.ts"
+      "./src/mikro-orm.config.ts",
+      "./build/mikro-orm.config.js"
     ]
   }
 }
