@@ -6,6 +6,7 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "node build/index.js",
+    "dev": "ts-node src/index.ts",
     "build": "tsc"
   },
   "dependencies": {
@@ -25,7 +26,7 @@
     "pino": "^7.11.0",
     "pino-pretty": "^7.6.1",
     "sleep-promise": "^9.1.0",
-    "telegraf": "^4.8.1",
+    "telegraf": "^4.8.4",
     "telegraf-stateless-question": "^2.0.1",
     "uuid": "^8.3.2"
   },
@@ -44,13 +45,13 @@
     "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-promise": "^6.0.0",
+    "ts-node": "^10.8.1",
     "typescript": "4.7"
   },
   "mikro-orm": {
-    "useTsNode": false,
+    "useTsNode": true,
     "configPaths": [
-      "./src/mikro-orm.config.ts",
-      "./build/mikro-orm.config.js"
+      "./src/mikro-orm.config.ts"
     ]
   }
 }
