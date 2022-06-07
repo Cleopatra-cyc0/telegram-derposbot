@@ -5,8 +5,8 @@ import {
   BotCommandScopeAllGroupChats,
   BotCommandScopeAllPrivateChats,
 } from "telegraf/typings/core/types/typegram"
-import { MyTelegrafContext } from ".."
-import logger from "../log"
+import { MyTelegrafContext } from "../index.js"
+import logger from "../log.js"
 type SupportedScope =
   | BotCommandScopeAllChatAdministrators
   | BotCommandScopeAllGroupChats

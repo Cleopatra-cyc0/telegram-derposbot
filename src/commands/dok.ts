@@ -1,9 +1,9 @@
 import fetch from "node-fetch"
 import { Telegraf } from "telegraf"
-import { MyKoaContext, MyTelegrafContext } from ".."
-import User from "../entities/User"
-import logger from "../log"
-import { BotCommandScope, registerCommand } from "./commandlist"
+import { MyKoaContext, MyTelegrafContext } from "../index.js"
+import User from "../entities/User.js"
+import logger from "../log.js"
+import { BotCommandScope, registerCommand } from "./commandlist.js"
 
 export default function dokCommands(bot: Telegraf<MyTelegrafContext>) {
   const dokApiSecret = process.env.DOK_SECRET

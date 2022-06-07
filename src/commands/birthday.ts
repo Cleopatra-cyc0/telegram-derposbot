@@ -1,13 +1,13 @@
 import { CronJob } from "cron"
 import { Telegraf } from "telegraf"
-import { MyTelegrafContext } from ".."
-import MikroOrm from "../database"
-import ChatSubscription, { SubScriptionType } from "../entities/ChatSubscription"
-import User from "../entities/User"
-import logger, { track } from "../log"
-import { getBirthDayMembers, getMemberBirthDate } from "../model"
-import { calculateDaysTillBirthDay, ErrorType, MyError } from "../util"
-import { BotCommandScope, registerCommand } from "./commandlist"
+import { MyTelegrafContext } from "../index.js"
+import MikroOrm from "../database.js"
+import ChatSubscription, { SubScriptionType } from "../entities/ChatSubscription.js"
+import User from "../entities/User.js"
+import logger, { track } from "../log.js"
+import { getBirthDayMembers, getMemberBirthDate } from "../model.js"
+import { calculateDaysTillBirthDay, ErrorType, MyError } from "../util.js"
+import { BotCommandScope, registerCommand } from "./commandlist.js"
 
 export default function birthdayCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.command("birthday", async ctx => {

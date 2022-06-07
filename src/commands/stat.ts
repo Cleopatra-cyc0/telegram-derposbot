@@ -1,10 +1,10 @@
 import { DateTime } from "luxon"
 import { Telegraf } from "telegraf"
-import { MyTelegrafContext } from ".."
-import Stat from "../entities/Stat"
-import User from "../entities/User"
-import logger from "../log"
-import { BotCommandScope, registerCommand } from "./commandlist"
+import { MyTelegrafContext } from "../index.js"
+import Stat from "../entities/Stat.js"
+import User from "../entities/User.js"
+import logger from "../log.js"
+import { BotCommandScope, registerCommand } from "./commandlist.js"
 
 export default async function recordStat(
   bot: Telegraf<MyTelegrafContext>,

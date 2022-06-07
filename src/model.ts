@@ -1,5 +1,5 @@
-import { ErrorType, IsSameDate, MyError } from "./util"
-import logger, { track } from "./log"
+import { ErrorType, IsSameDate, MyError } from "./util.js"
+import logger, { track } from "./log.js"
 import fetch, { FetchError } from "node-fetch"
 import { DateTime } from "luxon"
 

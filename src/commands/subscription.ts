@@ -1,9 +1,9 @@
 import { Telegraf } from "telegraf"
-import { MyTelegrafContext } from ".."
-import logger from "../log"
-import ChatSubscription, { SubScriptionType } from "../entities/ChatSubscription"
-import { enumKeys } from "../util"
-import { BotCommandScope, registerCommand } from "./commandlist"
+import { MyTelegrafContext } from "../index.js"
+import logger from "../log.js"
+import ChatSubscription, { SubScriptionType } from "../entities/ChatSubscription.js"
+import { enumKeys } from "../util.js"
+import { BotCommandScope, registerCommand } from "./commandlist.js"
 
 export default function subscriptionCommands(bot: Telegraf<MyTelegrafContext>) {
   registerCommand("subscribe", `Subscribe voor een type notification (${Object.values(SubScriptionType).join(", ")})`, [

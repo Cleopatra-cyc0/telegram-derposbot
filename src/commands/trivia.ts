@@ -1,8 +1,8 @@
 import sleep from "sleep-promise"
 import { Telegraf } from "telegraf"
-import { MyTelegrafContext } from ".."
-import { getMemberBirthDate } from "../model"
-import { calculateDaysTillBirthDay, getRandomLocation } from "../util"
+import { MyTelegrafContext } from "../index.js"
+import { getMemberBirthDate } from "../model.js"
+import { calculateDaysTillBirthDay, getRandomLocation } from "../util.js"
 
 export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.start(async ctx => {

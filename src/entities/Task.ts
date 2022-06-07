@@ -1,7 +1,7 @@
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core"
 import { DateTime } from "luxon"
 import { Telegram } from "telegraf"
-import { LuxonDate } from "../util"
+import { LuxonDate } from "../util.js"
 
 @Entity({
   discriminatorColumn: "type",

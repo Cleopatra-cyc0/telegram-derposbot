@@ -2,11 +2,11 @@ import { DateTime } from "luxon"
 import { Telegraf } from "telegraf"
 import TelegrafStatelessQuestion from "telegraf-stateless-question/dist/source"
 import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram"
-import { MyTelegrafContext } from ".."
-import { DeleteMessageTask, ForwardMessageTask, MessageTask, Task } from "../entities/Task"
-import logger from "../log"
-import { getRandomInRange, isMemberOfEnum } from "../util"
-import { BotCommandScope, registerCommand } from "./commandlist"
+import { MyTelegrafContext } from "../index.js"
+import { DeleteMessageTask, ForwardMessageTask, MessageTask, Task } from "../entities/Task.js"
+import logger from "../log.js"
+import { getRandomInRange, isMemberOfEnum } from "../util.js"
+import { BotCommandScope, registerCommand } from "./commandlist.js"
 
 const announcementApprovalChatId = parseInt(process.env.ANNOUNCEMENT_APPROVAL_CHAT_ID ?? "")
 const announcementChatId = parseInt(process.env.ANNOUNCEMENT_CHAT_ID ?? "")

@@ -1,7 +1,7 @@
 import { Options } from "@mikro-orm/core"
 import { PostgreSqlDriver } from "@mikro-orm/postgresql"
 import { TsMorphMetadataProvider } from "@mikro-orm/reflection"
-import logger from "./log"
+import logger from "./log.js"
 
 const dbConnctionString = process.env.DB_CONNECTION
 

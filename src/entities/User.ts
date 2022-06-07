@@ -1,7 +1,7 @@
 import { Collection, Entity, EntityRepositoryType, OneToMany, PrimaryKey, Property, Unique } from "@mikro-orm/core"
 import { EntityRepository } from "@mikro-orm/postgresql"
-import logger from "../log"
-import Stat from "./Stat"
+import logger from "../log.js"
+import Stat from "./Stat.js"
 
 @Entity({ customRepository: () => CustomUserRepository })
 export default class User {

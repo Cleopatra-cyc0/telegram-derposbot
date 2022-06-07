@@ -1,9 +1,9 @@
 import { CronJob } from "cron"
 import { DateTime } from "luxon"
 import { Telegram } from "telegraf"
-import MikroOrm from "./database"
-import { Task } from "./entities/Task"
-import logger from "./log"
+import MikroOrm from "./database.js"
+import { Task } from "./entities/Task.js"
+import logger from "./log.js"
 
 export function startTaskRunner(telegram: Telegram) {
   const taskJob = new CronJob("*/1 * * * *", async () => {

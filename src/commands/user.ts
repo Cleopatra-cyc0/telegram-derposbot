@@ -1,11 +1,11 @@
 import { Telegraf } from "telegraf"
-import { MyKoaContext, MyTelegrafContext } from ".."
-import User from "../entities/User"
+import { MyKoaContext, MyTelegrafContext } from "../index.js"
+import User from "../entities/User.js"
 import { v4 as uuid4 } from "uuid"
-import logger from "../log"
+import logger from "../log.js"
 import fetch from "node-fetch"
 import { URL } from "node:url"
-import { BotCommandScope, registerCommand } from "./commandlist"
+import { BotCommandScope, registerCommand } from "./commandlist.js"
 
 const congressusDomain = process.env.CONGRESSUS_DOMAIN
 const congressusClientId = process.env.CONGRESSUS_CLIENT_ID

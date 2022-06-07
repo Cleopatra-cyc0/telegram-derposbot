@@ -1,7 +1,7 @@
 import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core"
 import { DateTime } from "luxon"
-import { LuxonDate } from "../util"
-import User from "./User"
+import { LuxonDate } from "../util.js"
+import User from "./User.js"
 
 @Entity()
 export default class Stat {
