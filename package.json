@@ -5,9 +5,7 @@
   "type": "commonjs",
   "main": "src/index.ts",
   "scripts": {
-    "start:development": "ts-node src/index.ts | pino-pretty",
-    "start": "npm run start:$NODE_ENV",
-    "start:production": "node build/index.js",
+    "start": "node build/index.js",
     "build": "tsc"
   },
   "dependencies": {
@@ -46,7 +44,6 @@
     "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-promise": "^6.0.0",
-    "ts-node": "^10.7.0",
     "typescript": "4.7"
   },
   "mikro-orm": {
