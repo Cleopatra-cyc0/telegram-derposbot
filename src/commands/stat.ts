@@ -36,7 +36,7 @@ export default async function recordStat(
     }
   })
 
-  registerCommand(recordCommand, `haal een ${recordCommand}je weg`, [
+  registerCommand(undoCommand, `haal een ${recordCommand}je weg`, [
     BotCommandScope.Private,
     BotCommandScope.Groups,
     BotCommandScope.Admins,
