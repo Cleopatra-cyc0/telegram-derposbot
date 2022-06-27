@@ -82,6 +82,9 @@ dokCommands(bot)
       authtoken: process.env.NGROK_TOKEN,
     })
     logger.info({ domain }, "using ngrok tunnel")
+  } else {
+    logger.error("specify either WEBHOOK_DOMAIN or DEV_PORT")
+    process.exit(9)
   }
 
   const secretPath = `/telegraf/${bot.secretPathComponent()}`
