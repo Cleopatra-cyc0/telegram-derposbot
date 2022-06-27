@@ -20,7 +20,6 @@
     "dotenv": "^16.0.0",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
-    "localtunnel": "^2.0.2",
     "luxon": "^2.3.2",
     "node-fetch": "^2.6.7",
     "pg": "^8.7.3",
@@ -38,7 +37,6 @@
     "@types/koa": "^2.13.4",
     "@types/koa__router": "^8.0.11",
     "@types/koa-bodyparser": "^4.3.7",
-    "@types/localtunnel": "^2.0.1",
     "@types/luxon": "^2.3.2",
     "@types/node-fetch": "^2.6.1",
     "@types/uuid": "^8.3.4",
@@ -47,6 +45,7 @@
     "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-promise": "^6.0.0",
+    "ngrok": "^4.3.1",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.4"
   },

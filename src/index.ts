@@ -4,7 +4,7 @@ import logger, { track } from "./log"
 import { Settings } from "luxon"
 import { EntityManager } from "@mikro-orm/core"
 import { PostgreSqlDriver } from "@mikro-orm/postgresql"
-import localtunnel from "localtunnel"
+import ngrok from "ngrok"
 import Koa, { Context as KoaContext } from "koa"
 import bodyParser from "koa-bodyparser"
 import Router from "@koa/router"
@@ -77,8 +77,11 @@ dokCommands(bot)
   if (process.env.WEBHOOK_DOMAIN != null && process.env.WEBHOOK_DOMAIN != "") {
     domain = process.env.WEBHOOK_DOMAIN
   } else if (process.env.DEV_PORT != null && process.env.DEV_PORT != "") {
-    domain = (await localtunnel({ port: parseInt(process.env.DEV_PORT) })).url
-    logger.info({ domain }, "using localtunnel")
+    domain = await ngrok.connect({
+      port: parseInt(process.env.DEV_PORT),
+      authtoken: process.env.NGROK_TOKEN,
+    })
+    logger.info({ domain }, "using ngrok tunnel")
   }
 
   const secretPath = `/telegraf/${bot.secretPathComponent()}`
