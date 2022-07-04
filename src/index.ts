@@ -2,8 +2,7 @@ import "dotenv/config"
 import { Context as TelegrafContext, Telegraf, Telegram } from "telegraf"
 import logger, { track } from "./log"
 import { Settings } from "luxon"
-import { EntityManager } from "@mikro-orm/core"
-import { PostgreSqlDriver } from "@mikro-orm/postgresql"
+import { EntityManager } from "@mikro-orm/postgresql"
 import ngrok from "ngrok"
 import Koa, { Context as KoaContext } from "koa"
 import bodyParser from "koa-bodyparser"
@@ -20,6 +19,7 @@ import announcementCommands from "./commands/announcement"
 import dokCommands, { dokHandler } from "./commands/dok"
 import { startTaskRunner } from "./taskRunner"
 import commandList from "./commands/commandlist"
+import quoteCommands from "./commands/quote"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -30,11 +30,11 @@ if (!telegramToken) {
 }
 
 export interface MyTelegrafContext extends TelegrafContext {
-  db: EntityManager<PostgreSqlDriver>
+  db: EntityManager
 }
 
 export interface MyKoaContext extends KoaContext {
-  db: EntityManager<PostgreSqlDriver>
+  db: EntityManager
   telegram: Telegram
 }
 
@@ -72,6 +72,7 @@ recordStat(bot, "cunnilingus", "bef", "befsie", "befstats")
 userCommands(bot)
 announcementCommands(bot)
 dokCommands(bot)
+quoteCommands(bot)
 ;(async () => {
   let domain
   if (process.env.WEBHOOK_DOMAIN != null && process.env.WEBHOOK_DOMAIN != "") {
