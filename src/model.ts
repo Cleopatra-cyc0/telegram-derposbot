@@ -140,7 +140,7 @@ export async function getBirthDayMembers() {
   return birthdayCache.cache
 }
 
-export async function getMemberBirthDate(userId: number, retry = 0): Promise<DateTime> {
+export async function getMember(userId: number, retry = 0): Promise<CongressusMember> {
   try {
     const time = track()
     const res = await fetch(`https://api.congressus.nl/v30/members/${userId}`, {
@@ -152,7 +152,7 @@ export async function getMemberBirthDate(userId: number, retry = 0): Promise<Dat
       const body = (await res.json()) as CongressusMember
       if (body.show_almanac_date_of_birth) {
         logger.debug(time(), "congressus: fetch-single-birthday")
-        return DateTime.fromISO(body.date_of_birth)
+        return body
       } else {
         throw new MyError(ErrorType.PrivateInformation)
       }
@@ -166,7 +166,7 @@ export async function getMemberBirthDate(userId: number, retry = 0): Promise<Dat
     if (error instanceof FetchError) {
       if (retry < 3) {
         logger.debug({ retry }, "retrying congressus request")
-        return getMemberBirthDate(userId, retry + 1)
+        return getMember(userId, retry + 1)
       } else {
         throw new MyError(ErrorType.CongressusNetworkError)
       }
@@ -174,4 +174,7 @@ export async function getMemberBirthDate(userId: number, retry = 0): Promise<Dat
       throw new Error("unexpected error", { cause: error as Error })
     }
   }
+}
+export function getMemberBirthDate(userId: number, retry = 0): Promise<DateTime> {
+  return getMember(userId, retry).then(m => DateTime.fromISO(m.date_of_birth))
 }
