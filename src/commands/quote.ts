@@ -2,8 +2,14 @@ import { Telegraf } from "telegraf"
 import { MyTelegrafContext } from ".."
 import Quote from "../entities/Quote"
 import { getMember } from "../model"
+import { BotCommandScope, registerCommand } from "./commandlist"
 
 export default function quoteCommands(bot: Telegraf<MyTelegrafContext>) {
+  registerCommand("cloetje", "geef me een cloetje", [
+    BotCommandScope.Private,
+    BotCommandScope.Groups,
+    BotCommandScope.Admins,
+  ])
   bot.command("cloetje", async ctx => {
     const [cloetje] = await ctx.db
       .createQueryBuilder(Quote, "q")
