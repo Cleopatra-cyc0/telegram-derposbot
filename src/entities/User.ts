@@ -11,10 +11,14 @@ export default class User {
   }
 
   @PrimaryKey({
-    autoincrement: false,
+    autoincrement: true,
+  })
+  id!: number
+
+  @Property({
     type: "bigint",
   })
-  telegramId!: number
+  telegramId?: number
 
   @Property()
   @Unique()

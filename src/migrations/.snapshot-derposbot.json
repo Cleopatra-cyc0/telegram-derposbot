@@ -6,13 +6,22 @@
   "tables": [
     {
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
         "telegram_id": {
           "name": "telegram_id",
           "type": "bigint",
           "unsigned": false,
           "autoincrement": false,
-          "primary": true,
-          "nullable": false,
+          "primary": false,
+          "nullable": true,
           "mappedType": "bigint"
         },
         "congressus_id": {
@@ -68,7 +77,7 @@
         {
           "keyName": "user_pkey",
           "columnNames": [
-            "telegram_id"
+            "id"
           ],
           "composite": false,
           "primary": true,
@@ -248,14 +257,14 @@
           "nullable": false,
           "mappedType": "string"
         },
-        "user_telegram_id": {
-          "name": "user_telegram_id",
-          "type": "bigint",
+        "user_id": {
+          "name": "user_id",
+          "type": "int",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "bigint"
+          "mappedType": "integer"
         }
       },
       "name": "stat",
@@ -273,14 +282,14 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "stat_user_telegram_id_foreign": {
-          "constraintName": "stat_user_telegram_id_foreign",
+        "stat_user_id_foreign": {
+          "constraintName": "stat_user_id_foreign",
           "columnNames": [
-            "user_telegram_id"
+            "user_id"
           ],
           "localTableName": "public.stat",
           "referencedColumnNames": [
-            "telegram_id"
+            "id"
           ],
           "referencedTableName": "public.user",
           "deleteRule": "cascade",
