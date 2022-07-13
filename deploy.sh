@@ -3,7 +3,7 @@ echo "removing old image"
 docker rmi derposbot:latest
 set -e
 echo "building new image"
-docker build -t derposbot:latest .
+docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) -t derposbot:latest .
 echo "saving new image to file"
 docker save -o ./image.tar derposbot:latest
 echo "gzipping file"
