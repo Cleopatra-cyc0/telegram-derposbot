@@ -106,7 +106,7 @@ quoteCommands(bot)
     try {
       await bot.handleUpdate(ctx.request.body)
     } catch (error) {
-      logger.fatal({ error }, "bot.handleUpdate error")
+      logger.fatal({ error: JSON.stringify(error, Object.getOwnPropertyNames(error)) }, "bot.handleUpdate error")
     }
     ctx.status = 200
   })
@@ -124,7 +124,7 @@ quoteCommands(bot)
     const msgs = await Promise.all(subs.map(s => bot.telegram.sendMessage(s.telegramChatId, "Ben er weer")))
     logger.trace({ chats: msgs.map(m => m.chat.id) }, "sent startup message")
   } catch (error) {
-    logger.error({ error }, "failed sending start status")
+    logger.error({ error: JSON.stringify(error, Object.getOwnPropertyNames(error)) }, "failed sending start status")
   }
 })()
 

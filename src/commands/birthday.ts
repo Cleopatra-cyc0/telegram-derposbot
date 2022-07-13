@@ -49,7 +49,10 @@ export default function birthdayCommands(bot: Telegraf<MyTelegrafContext>) {
               break
           }
         } else {
-          logger.error({ error }, "unexpected error during birthday getting")
+          logger.error(
+            { error: JSON.stringify(error, Object.getOwnPropertyNames(error)) },
+            "unexpected error during birthday getting",
+          )
           await ctx.reply("ja nee")
         }
       }

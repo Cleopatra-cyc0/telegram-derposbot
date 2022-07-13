@@ -47,5 +47,7 @@ export default async function commandList(bot: Telegraf<MyTelegrafContext>) {
     ),
   ])
     .then(() => logger.trace("commands registered"))
-    .catch(err => logger.error({ err }, "error registering commands"))
+    .catch(error =>
+      logger.error({ err: JSON.stringify(error, Object.getOwnPropertyNames(error)) }, "error registering commands"),
+    )
 }
