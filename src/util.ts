@@ -125,3 +125,16 @@ export function getRandomLocation() {
 export function getRandomInRange(from: number, to: number, decimalPlaces: number) {
   return Math.round((Math.random() * (to - from) + from) * Math.pow(10, decimalPlaces)) / Math.pow(10, decimalPlaces)
 }
+
+const rateLimitStore = new Map<string, number[]>()
+
+export const checkAndInsertRateLimit = (key: string, maxRequests: number, timeWindow: number) => {
+  let relevantResquests: number[] = []
+  if (rateLimitStore.has(key)) {
+    const requests = rateLimitStore.get(key) as number[]
+    relevantResquests = requests.filter(r => r > Date.now() - timeWindow)
+  }
+  const result = relevantResquests.length < maxRequests
+  rateLimitStore.set(key, [...relevantResquests, Date.now()])
+  return result
+}
