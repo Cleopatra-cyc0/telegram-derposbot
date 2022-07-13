@@ -9,6 +9,9 @@ RUN npm install
 
 ENV NODE_ENV=production
 
+ARG GIT_COMMIT
+ENV GIT_COMMIT=$GIT_COMMIT
+
 COPY . .
 
 RUN npm run build

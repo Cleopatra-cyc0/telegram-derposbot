@@ -4,6 +4,8 @@ import { MyTelegrafContext } from ".."
 import { getMemberBirthDate } from "../model"
 import { calculateDaysTillBirthDay, getRandomLocation } from "../util"
 
+const gitHash = process.env.GIT_COMMIT ?? "unknown"
+
 export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.start(async ctx => {
     await ctx.reply("hoi")
@@ -13,7 +15,9 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
   })
 
   bot.command("nerd", ctx => {
-    return ctx.replyWithHTML(`Oh jij coole nerd\n<pre language="json">${JSON.stringify(ctx.message, null, 2)}</pre>`)
+    return ctx.replyWithHTML(
+      `Oh jij coole nerd\n<pre language="json">${JSON.stringify(ctx.message, null, 2)}\n\nGit commit: ${gitHash}</pre>`,
+    )
   })
 
   bot.command("isdebaropen", ctx => {
