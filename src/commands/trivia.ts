@@ -15,6 +15,7 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
   })
 
   bot.command("nerd", ctx => {
+    throw new Error("test")
     return ctx.replyWithHTML(
       `Oh jij coole nerd\n<pre language="json">${JSON.stringify(ctx.message, null, 2)}\n\nGit commit: ${gitHash}</pre>`,
     )

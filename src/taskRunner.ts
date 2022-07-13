@@ -13,7 +13,7 @@ export function startTaskRunner(telegram: Telegram) {
     try {
       await Promise.all(tasksToRun.map(t => t.run(telegram)))
     } catch (error) {
-      logger.error({ error }, "Error while running tasks")
+      logger.error({ error: JSON.stringify(error, Object.getOwnPropertyNames(error)) }, "Error while running tasks")
     } finally {
       tasksToRun.forEach(t => (t.done = true))
       await db.persist(tasksToRun).flush()

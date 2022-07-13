@@ -115,7 +115,10 @@ export async function dokHandler(ctx: MyKoaContext) {
         logger.trace({ user, dokInfo: body }, "Sent dok notification")
       } catch (error) {
         ctx.res.statusCode = 500
-        logger.error({ error }, "Error sending DOK notification")
+        logger.error(
+          { error: JSON.stringify(error, Object.getOwnPropertyNames(error)) },
+          "Error sending DOK notification",
+        )
       }
     } else {
       ctx.res.statusCode = 200
