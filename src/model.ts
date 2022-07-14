@@ -11,7 +11,7 @@ if (!congressusToken) {
 }
 
 export type CongressusMember = {
-  id: 0
+  id: number
   username: string
   // Status omitted
   gender: string
@@ -106,14 +106,29 @@ async function getAllPages(baseUrl: URL, fetchOptions: RequestInit = {}): Promis
   return data
 }
 
+const memberCache: { lastRefresh: number | null; members: Map<CongressusMember["id"], CongressusMember> } = {
+  lastRefresh: null,
+  members: new Map<CongressusMember["id"], CongressusMember>(),
+}
+
 async function fetchBirthdayMembers() {
   const time = track()
   // get birthdays
-  const allMembers = await getAllPages(new URL("/v30/members", "https://api.congressus.nl"), {
-    headers: {
-      Authorization: `Bearer: ${congressusToken}`,
-    },
-  })
+  let allMembers
+  if (memberCache.lastRefresh == null || memberCache.lastRefresh < Date.now() - 1000 * 60 * 60) {
+    allMembers = await getAllPages(new URL("/v30/members", "https://api.congressus.nl"), {
+      headers: {
+        Authorization: `Bearer: ${congressusToken}`,
+      },
+    })
+    memberCache.lastRefresh = Date.now()
+    for (const member of allMembers) {
+      memberCache.members.set(member.id, member)
+    }
+  } else {
+    allMembers = [...memberCache.members.values()]
+  }
+
   const result = allMembers
     .filter(m => m.show_almanac_date_of_birth && m.date_of_birth != null && IsSameDate(m.date_of_birth))
     .map(m =>
@@ -141,38 +156,47 @@ export async function getBirthDayMembers() {
 }
 
 export async function getMember(userId: number, retry = 0): Promise<CongressusMember> {
-  try {
-    const time = track()
-    const res = await fetch(`https://api.congressus.nl/v30/members/${userId}`, {
-      headers: {
-        Authorization: `Bearer: ${congressusToken}`,
-      },
-    })
-    if (res.ok) {
-      const body = (await res.json()) as CongressusMember
-      if (body.show_almanac_date_of_birth) {
-        logger.debug(time(), "congressus: fetch-single-birthday")
-        return body
+  const time = track()
+  let member
+  if (
+    memberCache.lastRefresh != null &&
+    memberCache.lastRefresh > Date.now() - 1000 * 60 * 60 &&
+    memberCache.members.has(userId)
+  ) {
+    member = memberCache.members.get(userId) as CongressusMember
+  } else {
+    try {
+      const res = await fetch(`https://api.congressus.nl/v30/members/${userId}`, {
+        headers: {
+          Authorization: `Bearer: ${congressusToken}`,
+        },
+      })
+      if (res.ok) {
+        member = (await res.json()) as CongressusMember
+      } else if (res.status === 404) {
+        logger.error(time(), "congressus member not found")
+        throw new MyError(ErrorType.MemberNotFound)
       } else {
-        throw new MyError(ErrorType.PrivateInformation)
+        throw { ...new Error("Unexpected error"), httpResponse: res }
       }
-    } else if (res.status === 404) {
-      logger.error(time(), "congressus member not found")
-      throw new MyError(ErrorType.MemberNotFound)
-    } else {
-      throw { ...new Error("Unexpected error"), httpResponse: res }
-    }
-  } catch (error) {
-    if (error instanceof FetchError) {
-      if (retry < 3) {
-        logger.debug({ retry }, "retrying congressus request")
-        return getMember(userId, retry + 1)
+    } catch (error) {
+      if (error instanceof FetchError) {
+        if (retry < 3) {
+          logger.debug({ retry }, "retrying congressus request")
+          return getMember(userId, retry + 1)
+        } else {
+          throw new MyError(ErrorType.CongressusNetworkError)
+        }
       } else {
-        throw new MyError(ErrorType.CongressusNetworkError)
+        throw new Error("unexpected error", { cause: error as Error })
       }
-    } else {
-      throw new Error("unexpected error", { cause: error as Error })
     }
+  }
+  if (member.show_almanac_date_of_birth) {
+    logger.debug(time(), "congressus: fetch-single-birthday")
+    return member
+  } else {
+    throw new MyError(ErrorType.PrivateInformation)
   }
 }
 export function getMemberBirthDate(userId: number, retry = 0): Promise<DateTime> {
