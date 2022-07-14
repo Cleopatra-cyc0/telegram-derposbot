@@ -6,6 +6,7 @@ import logger from "../log"
 import fetch from "node-fetch"
 import { URL } from "node:url"
 import { BotCommandScope, registerCommand } from "./commandlist"
+import Quote from "../entities/Quote"
 
 const congressusDomain = process.env.CONGRESSUS_DOMAIN
 const congressusClientId = process.env.CONGRESSUS_CLIENT_ID
@@ -96,16 +97,33 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
       })
       if (res.ok) {
         const body = (await res.json()) as { user_id: number }
-        const alreadyExists = await ctx.db.count(User, { congressusId: body.user_id })
-        if (alreadyExists === 0) {
+        const existingCongressusUser = await ctx.db.findOne(User, { congressusId: body.user_id })
+        if (existingCongressusUser == null) {
           user.congressusId = body.user_id
           ctx.db.persist(user)
           logger.info({ user }, "user succes")
           ctx.res.write("Ja mooi man")
           ctx.status = 200
           ctx.res.end()
+        } else if (existingCongressusUser.id != user.id) {
+          if (existingCongressusUser.telegramId == null) {
+            // merge
+            user.congressusId = existingCongressusUser.congressusId
+            const quotesToMerge = await ctx.db.find(Quote, { author: existingCongressusUser })
+            for (const quote of quotesToMerge) {
+              quote.author = user
+              ctx.db.persist(quote)
+            }
+            ctx.db.remove(existingCongressusUser)
+            await ctx.db.persist(user).flush()
+          } else {
+            logger.info({ congressusBody: body, user }, "duplicate telegram account to congressus account")
+            ctx.res.write("die ken ik al bij iemand anders")
+            ctx.status = 403
+            ctx.res.end()
+          }
         } else {
-          logger.info({ congressusBody: body, user }, "duplicate telegram account to congressus account")
+          logger.trace({ congressusBody: body, user }, "congressus reconnect to same telegram")
           ctx.res.write("jou kende ik al")
           ctx.status = 403
           ctx.res.end()
