@@ -1,3 +1,4 @@
+import { DateTime } from "luxon"
 import { Telegraf } from "telegraf"
 import { MyTelegrafContext } from ".."
 import Quote from "../entities/Quote"
@@ -23,15 +24,15 @@ export default function quoteCommands(bot: Telegraf<MyTelegrafContext>) {
       if (cloetje) {
         const member = cloetje.author.congressusId ? await getMember(cloetje.author.congressusId) : null
 
-        if (member) {
-          await ctx.reply(
-            `${cloetje.text}\n\ningediend door ${member.first_name}${
-              member.primary_last_name_prefix ? ` ${member.primary_last_name_prefix}` : ""
-            } ${member.primary_last_name_main}`,
-          )
-        } else {
-          await ctx.reply(`${cloetje.text}\n\ningediend door onbekend`)
-        }
+        const indiener = member
+          ? `${member.first_name}${member.primary_last_name_prefix ? ` ${member.primary_last_name_prefix}` : ""} ${
+              member.primary_last_name_main
+            }`
+          : "onbekend"
+
+        await ctx.reply(
+          `${cloetje.text}\n\ningediend op ${cloetje.date.toLocaleString(DateTime.DATETIME_MED)} door ${indiener}`,
+        )
       } else {
         logger.trace("no cloetjes found")
         await ctx.reply("Geen cloetjes gevonden")
