@@ -22,7 +22,18 @@ export default function quoteCommands(bot: Telegraf<MyTelegrafContext>) {
         .joinAndSelect("q.author", "a")
         .getResultList()
       if (cloetje) {
-        const member = cloetje.author.congressusId ? await getMember(cloetje.author.congressusId) : null
+        const member = cloetje.author.congressusId
+          ? await getMember(cloetje.author.congressusId).catch(error => {
+              logger.error(
+                {
+                  error: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+                  memberId: cloetje.author.congressusId,
+                },
+                "error fetching member",
+              )
+              return null
+            })
+          : null
 
         const indiener = member
           ? `${member.first_name}${member.primary_last_name_prefix ? ` ${member.primary_last_name_prefix}` : ""} ${
