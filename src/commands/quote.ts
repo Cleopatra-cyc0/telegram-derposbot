@@ -14,7 +14,7 @@ export default function quoteCommands(bot: Telegraf<MyTelegrafContext>) {
     BotCommandScope.Admins,
   ])
   bot.command("cloetje", async ctx => {
-    if (checkAndInsertRateLimit(`quote${ctx.chat.id}`, 3, 1000 * 60 * 5)) {
+    if (checkAndInsertRateLimit(`quote${ctx.chat.id}`, 1, 1000 * 60 * 60 * 24)) {
       const [cloetje] = await ctx.db
         .createQueryBuilder(Quote, "q")
         .orderBy({ ["RANDOM()"]: "ASC" })
