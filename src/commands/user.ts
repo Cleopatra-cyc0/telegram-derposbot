@@ -85,8 +85,8 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
 
   if (userId != null) {
     oAuthStateStore.delete(state as string)
-    const user = await ctx.db.findOne(User, { telegramId: userId })
-    if (user != null) {
+    const telegramUser = await ctx.db.findOne(User, { telegramId: userId })
+    if (telegramUser != null) {
       const res = await fetch(`${congressusDomain}/oauth/token`, {
         method: "POST",
         headers: {
@@ -99,31 +99,26 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
         const body = (await res.json()) as { user_id: number }
         const existingCongressusUser = await ctx.db.findOne(User, { congressusId: body.user_id })
         if (existingCongressusUser == null) {
-          user.congressusId = body.user_id
-          ctx.db.persist(user)
-          logger.info({ user }, "user succes")
+          telegramUser.congressusId = body.user_id
+          ctx.db.persist(telegramUser)
+          logger.info({ user: telegramUser }, "user succes")
           ctx.res.write("Ja mooi man")
           ctx.status = 200
           ctx.res.end()
-        } else if (existingCongressusUser.id != user.id) {
+        } else if (existingCongressusUser.id != telegramUser.id) {
           if (existingCongressusUser.telegramId == null) {
-            // merge
-            user.congressusId = existingCongressusUser.congressusId
-            const quotesToMerge = await ctx.db.find(Quote, { author: existingCongressusUser })
-            for (const quote of quotesToMerge) {
-              quote.author = user
-              ctx.db.persist(quote)
-            }
-            ctx.db.remove(existingCongressusUser)
-            await ctx.db.persist(user).flush()
+            await ctx.db.getRepository(User).mergeUsers(existingCongressusUser.id, telegramUser.id)
           } else {
-            logger.info({ congressusBody: body, user }, "duplicate telegram account to congressus account")
-            ctx.res.write("die ken ik al bij iemand anders")
+            logger.info(
+              { congressusBody: body, user: telegramUser },
+              "duplicate telegram account to congressus account",
+            )
+            ctx.res.write("dat ben jij niet")
             ctx.status = 403
             ctx.res.end()
           }
         } else {
-          logger.trace({ congressusBody: body, user }, "congressus reconnect to same telegram")
+          logger.trace({ congressusBody: body, user: telegramUser }, "congressus reconnect to same telegram")
           ctx.res.write("jou kende ik al")
           ctx.status = 403
           ctx.res.end()
