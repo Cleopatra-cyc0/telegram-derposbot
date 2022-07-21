@@ -107,6 +107,9 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
         } else if (existingCongressusUser.id != telegramUser.id) {
           if (existingCongressusUser.telegramId == null) {
             await ctx.db.getRepository(User).mergeUsers(existingCongressusUser.id, telegramUser.id)
+            ctx.res.write("Ja mooi man")
+            ctx.status = 200
+            ctx.res.end()
           } else {
             logger.info(
               { congressusBody: body, user: telegramUser },
