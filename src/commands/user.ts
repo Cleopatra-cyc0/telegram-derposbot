@@ -6,7 +6,6 @@ import logger from "../log"
 import fetch from "node-fetch"
 import { URL } from "node:url"
 import { BotCommandScope, registerCommand } from "./commandlist"
-import Quote from "../entities/Quote"
 
 const congressusDomain = process.env.CONGRESSUS_DOMAIN
 const congressusClientId = process.env.CONGRESSUS_CLIENT_ID
