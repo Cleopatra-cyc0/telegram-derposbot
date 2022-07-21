@@ -136,7 +136,7 @@ export async function congressusOAuthHandler(ctx: MyKoaContext) {
       ctx.res.end()
     }
   } else {
-    logger.error({ state }, "invalid state given in OAuth flow")
+    logger.error({ state, oAuthStateStore: [...oAuthStateStore.entries()] }, "invalid state given in OAuth flow")
     ctx.res.write("Dat mag niet")
     ctx.status = 403
     ctx.res.end()
