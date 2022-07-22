@@ -75,26 +75,35 @@ export default function birthdayCommands(bot: Telegraf<MyTelegrafContext>) {
 }
 
 async function sendBirthdayMessage(bot: Telegraf<MyTelegrafContext>, ctx?: MyTelegrafContext) {
-  const birthDayMembers = await getBirthDayMembers()
   let message
-  if (birthDayMembers.length === 0) {
-    message = "Helaas is er niemand jarig vandaag"
-  } else if (birthDayMembers.length === 1) {
-    message = `Gefeliciteerd! ${birthDayMembers[0]}!`
-  } else {
-    message = `Gefeliciteerd!`
-    for (const name of birthDayMembers) {
-      message = `${message}\n- ${name}`
+  try {
+    const birthDayMembers = await getBirthDayMembers()
+
+    if (birthDayMembers.length === 0) {
+      message = "Helaas is er niemand jarig vandaag"
+    } else if (birthDayMembers.length === 1) {
+      message = `Gefeliciteerd! ${birthDayMembers[0]}!`
+    } else {
+      message = `Gefeliciteerd!`
+      for (const name of birthDayMembers) {
+        message = `${message}\n- ${name}`
+      }
     }
+  } catch (error) {
+    message = "Er ging iets mis met de verjaardagen"
+    logger.error(
+      { error: JSON.stringify(error, Object.getOwnPropertyNames(error)) },
+      "Error while getting birthdays from congressus",
+    )
   }
-  let chatSubRepo
+  let chatSubscriptionRepo
   if (ctx != null) {
-    chatSubRepo = ctx.db.getRepository(ChatSubscription)
+    chatSubscriptionRepo = ctx.db.getRepository(ChatSubscription)
   } else {
-    chatSubRepo = (await MikroOrm).em.fork().getRepository(ChatSubscription)
+    chatSubscriptionRepo = (await MikroOrm).em.fork().getRepository(ChatSubscription)
   }
 
-  const chats = await chatSubRepo.find({ type: SubScriptionType.Birthday })
+  const chats = await chatSubscriptionRepo.find({ type: SubScriptionType.Birthday })
 
   if (ctx) {
     await ctx.reply(message)
