@@ -5,6 +5,19 @@ import ChatSubscription, { SubScriptionType } from "../entities/ChatSubscription
 import { enumKeys } from "../util"
 import { BotCommandScope, registerCommand } from "./commandlist"
 
+const superAdminUserId = (() => {
+  try {
+    const id = parseInt(process.env.SUPER_ADMIN_USER_ID as string)
+    if (!isNaN(id)) {
+      return id
+    } else {
+      return -Infinity
+    }
+  } catch {
+    return -Infinity
+  }
+})()
+
 export default function subscriptionCommands(bot: Telegraf<MyTelegrafContext>) {
   registerCommand("subscribe", `Subscribe voor een type notification (${Object.values(SubScriptionType).join(", ")})`, [
     BotCommandScope.Private,
@@ -21,6 +34,7 @@ export default function subscriptionCommands(bot: Telegraf<MyTelegrafContext>) {
     }
     type = type ?? SubScriptionType.Birthday
     if (
+      ctx.from.id === superAdminUserId ||
       ctx.chat.type === "private" ||
       ["administrator", "creator"].includes((await ctx.getChatMember(ctx.from.id)).status)
     ) {
