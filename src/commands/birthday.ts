@@ -9,6 +9,8 @@ import { getBirthDayMembers, getMemberBirthDate } from "../model"
 import { calculateDaysTillBirthDay, ErrorType, MyError } from "../util"
 import { BotCommandScope, registerCommand } from "./commandlist"
 
+const superAdminUserId = parseInt(process.env.SUPER_ADMIN_USER_ID as string)
+
 export default function birthdayCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.command("birthday", async ctx => {
     await ctx.reply("die is vervangen door /wieiserjarig en /mijnverjaardag")
@@ -30,8 +32,16 @@ export default function birthdayCommands(bot: Telegraf<MyTelegrafContext>) {
     if (user != null && user.congressusId != null) {
       try {
         const birthDate = await getMemberBirthDate(user.congressusId)
-        const { days, age } = calculateDaysTillBirthDay(birthDate)
-        ctx.reply(`Nog ${days} ${days === 1 ? "dag" : "dagen"} tot jouw ${age}e verjaardag`)
+        const birthdayInfo = calculateDaysTillBirthDay(birthDate)
+        // EASTER EGG
+        if (ctx.from.id === superAdminUserId) {
+          birthdayInfo.age = 22
+        }
+        ctx.reply(
+          `Nog ${birthdayInfo.days} ${birthdayInfo.days === 1 ? "dag" : "dagen"} tot jouw ${
+            birthdayInfo.age
+          }e verjaardag`,
+        )
       } catch (error) {
         if (error instanceof MyError) {
           switch (error.type) {
