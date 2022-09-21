@@ -77,4 +77,8 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
       horizontal_accuracy: 1500,
     })
   })
+
+  bot.command("pingpong", async ctx => {
+    await ctx.reply(ctx.message.text.slice("/pingpong".length))
+  })
 }
