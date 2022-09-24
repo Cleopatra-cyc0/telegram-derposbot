@@ -128,13 +128,20 @@ export function getRandomInRange(from: number, to: number, decimalPlaces: number
 
 const rateLimitStore = new Map<string, number[]>()
 
-export const checkAndInsertRateLimit = (key: string, maxRequests: number, timeWindow: number) => {
+export const checkAndInsertRateLimit = (
+  key: string,
+  maxRequests: number,
+  timeWindow: number,
+  countFailedAttempts = false,
+) => {
   let relevantResquests: number[] = []
   if (rateLimitStore.has(key)) {
     const requests = rateLimitStore.get(key) as number[]
     relevantResquests = requests.filter(r => r > Date.now() - timeWindow)
   }
   const result = relevantResquests.length < maxRequests
-  rateLimitStore.set(key, [...relevantResquests, Date.now()])
+  if (result || countFailedAttempts) {
+    rateLimitStore.set(key, [...relevantResquests, Date.now()])
+  }
   return result
 }
