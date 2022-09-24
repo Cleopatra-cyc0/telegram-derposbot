@@ -24,7 +24,7 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
     return ctx.reply("misschien")
   })
 
-  bot.command("kutbot", ctx => {
+  bot.hears("kutbot", ctx => {
     const random = Math.random()
     if (random > 0.7) {
       return ctx.reply(":(")
@@ -33,10 +33,6 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
     } else {
       return ctx.reply("sorry")
     }
-  })
-
-  bot.command("goodbot", ctx => {
-    return ctx.replyWithPhoto("https://ppcprotect.com/static/d634452a7d2ae979b9fcd9a04d3bf6eb/good-bots.jpg")
   })
 
   bot.command("kopofmunt", async ctx => {
