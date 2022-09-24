@@ -12,7 +12,7 @@ type SupportedScope =
   | BotCommandScopeAllGroupChats
   | BotCommandScopeAllPrivateChats
 
-export const BotCommandScope: Record<string, SupportedScope> = {
+export const BotCommandScope: Record<"Private" | "Groups" | "Admins", SupportedScope> = {
   Private: { type: "all_private_chats" },
   Groups: { type: "all_group_chats" },
   Admins: { type: "all_chat_administrators" },
