@@ -21,7 +21,7 @@ export default function quoteCommands(bot: Telegraf<MyTelegrafContext>) {
         await ctx.reply(message)
       } else {
         logger.trace({ userId: ctx.message.from.id, chatId: ctx.chat.id }, "cloe rate limited")
-        await ctx.reply("ff rustig")
+        await ctx.replyWithPhoto("https://i.ibb.co/KX0v39J/cleo-leus.png")
       }
     } else {
       ctx.reply("alleen prive")
