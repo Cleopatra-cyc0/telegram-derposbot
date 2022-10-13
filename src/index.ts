@@ -20,6 +20,7 @@ import dokCommands, { dokHandler } from "./commands/dok"
 import { startTaskRunner } from "./taskRunner"
 import commandList from "./commands/commandlist"
 import quoteCommands from "./commands/quote"
+import { Update } from "telegraf/typings/core/types/typegram"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -70,6 +71,7 @@ recordStat(bot, "shit", "poep", "poepsie", "poepstats")
 recordStat(bot, "blowjob", "pijp", "pijpsie", "pijpstats")
 recordStat(bot, "cunnilingus", "bef", "befsie", "befstats")
 recordStat(bot, "puke", "barf", "unbarf", "barfstats")
+recordStat(bot, "gym", "gain", "gainloss", "gains", count => `Lekker pompen, al ${count}`)
 userCommands(bot)
 announcementCommands(bot)
 dokCommands(bot)
@@ -105,7 +107,7 @@ quoteCommands(bot)
   const router = new Router()
   router.post(secretPath, async ctx => {
     try {
-      await bot.handleUpdate(ctx.request.body)
+      await bot.handleUpdate(ctx.request.body as unknown as Update)
     } catch (error) {
       logger.fatal({ error: JSON.stringify(error, Object.getOwnPropertyNames(error)) }, "bot.handleUpdate error")
     }

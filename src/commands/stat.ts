@@ -12,6 +12,7 @@ export default async function recordStat(
   recordCommand: string,
   undoCommand: string,
   infoCommand: string,
+  addMsg = (count: number) => (Math.random() > 0.95 ? `Gast doe normaal, al ${count}` : `Lekker hoor, je ${count}e`),
 ) {
   registerCommand(recordCommand, `Sla een ${recordCommand}je op`, [
     BotCommandScope.Private,
@@ -29,11 +30,7 @@ export default async function recordStat(
     await ctx.db.persist(stat).flush()
     logger.trace({ user, type }, "new stat")
     const count = await ctx.db.count(Stat, { user, type })
-    if (Math.random() > 0.95) {
-      await ctx.reply(`Gast doe normaal, al ${count}`)
-    } else {
-      await ctx.reply(`Lekker hoor, je ${count}e`)
-    }
+    await ctx.reply(addMsg(count))
   })
 
   registerCommand(undoCommand, `haal een ${recordCommand}je weg`, [
@@ -68,10 +65,10 @@ export default async function recordStat(
     if (user != null && stats.length > 0) {
       const firstStat = stats.reduce((first, curr) => (curr.date < first.date ? curr : first))
       const count = stats.length
-      const todayStart = DateTime.now().set({ hour: 0, second: 0, minute: 0 })
-      const countToday = stats.filter(stat => stat.date > todayStart).length
+      const weekStart = DateTime.now().set({ hour: 0, second: 0, minute: 0, weekday: 1 })
+      const countStart = stats.filter(stat => stat.date > weekStart).length
       await ctx.reply(
-        `Al ${count} keer sinds ${firstStat.date.toLocaleString(DateTime.DATE_MED)}\n${countToday} waren vandaag`,
+        `Al ${count} keer sinds ${firstStat.date.toLocaleString(DateTime.DATE_MED)}\n${countStart} waren deze week`,
       )
     } else {
       await ctx.reply("Ik ken jou helemaal niet, flikker op")
