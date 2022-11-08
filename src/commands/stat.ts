@@ -61,7 +61,13 @@ export default async function recordStat(
   ])
   bot.command(infoCommand, async ctx => {
     const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id })
-    const stats = await ctx.db.find(Stat, { user, type })
+    const alternateStartDate = DateTime.fromISO(ctx.message.text.trim().split(" ")[1])
+    let stats
+    if (alternateStartDate.isValid) {
+      stats = await ctx.db.find(Stat, { user, type, date: { $gte: alternateStartDate } })
+    } else {
+      stats = await ctx.db.find(Stat, { user, type })
+    }
     if (user != null && stats.length > 0) {
       const firstStat = stats.reduce((first, curr) => (curr.date < first.date ? curr : first))
       const count = stats.length
