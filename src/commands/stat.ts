@@ -66,9 +66,13 @@ export default async function recordStat(
       const firstStat = stats.reduce((first, curr) => (curr.date < first.date ? curr : first))
       const count = stats.length
       const weekStart = DateTime.now().set({ hour: 0, second: 0, minute: 0, weekday: 1 })
-      const countStart = stats.filter(stat => stat.date > weekStart).length
+      const monthAgo = DateTime.now().minus({ month: 1 })
+      const countWeek = stats.filter(stat => stat.date > weekStart).length
+      const countMonth = stats.filter(stat => stat.date > monthAgo).length
       await ctx.reply(
-        `Al ${count} keer sinds ${firstStat.date.toLocaleString(DateTime.DATE_MED)}\n${countStart} waren deze week`,
+        `Al ${count} keer sinds ${firstStat.date.toLocaleString(
+          DateTime.DATE_MED,
+        )}\n${countWeek} waren deze week\n${countMonth} waren de laatste maand`,
       )
     } else {
       await ctx.reply("Ik ken jou helemaal niet, flikker op")
