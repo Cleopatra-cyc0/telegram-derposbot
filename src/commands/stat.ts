@@ -69,11 +69,12 @@ export default async function recordStat(
       const monthAgo = DateTime.now().minus({ month: 1 })
       const countWeek = stats.filter(stat => stat.date > weekStart).length
       const countMonth = stats.filter(stat => stat.date > monthAgo).length
-      const dayAvg = Math.round(count / (DateTime.now().diff(firstStat.date).as("days") + 1))
+      const dayAvg = count / (DateTime.now().diff(firstStat.date).as("days") + 1)
+      const weekAvg = count / (DateTime.now().diff(firstStat.date).as("weeks") + 1)
       await ctx.reply(
         `Al ${count} keer sinds ${firstStat.date.toLocaleString(
           DateTime.DATE_MED,
-        )}\n${countWeek} waren deze week\n${countMonth} waren de laatste maand\nGemiddeld ${dayAvg} per dag`,
+        )}\n${countWeek} waren deze week\n${countMonth} waren de laatste maand\nGemiddeld ${dayAvg} per dag\nGemiddeld ${weekAvg} per week`,
       )
     } else {
       await ctx.reply("Ik ken jou helemaal niet, flikker op")
