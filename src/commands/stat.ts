@@ -69,16 +69,18 @@ export default async function recordStat(
       stats = await ctx.db.find(Stat, { user, type })
     }
     if (user != null && stats.length > 0) {
-      const firstStat = stats.reduce((first, curr) => (curr.date < first.date ? curr : first))
+      const firstDate = alternateStartDate.isValid
+        ? alternateStartDate
+        : stats.reduce((last, curr) => (curr.date < last.date ? curr : last)).date
       const count = stats.length
       const weekStart = DateTime.now().set({ hour: 0, second: 0, minute: 0, weekday: 1 })
       const monthAgo = DateTime.now().minus({ month: 1 })
       const countWeek = stats.filter(stat => stat.date > weekStart).length
       const countMonth = stats.filter(stat => stat.date > monthAgo).length
-      const dayAvg = count / (DateTime.now().diff(firstStat.date).as("days") + 1)
-      const weekAvg = count / (DateTime.now().diff(firstStat.date).as("weeks") + 1)
+      const dayAvg = count / (DateTime.now().diff(firstDate).as("days") + 1)
+      const weekAvg = count / (DateTime.now().diff(firstDate).as("weeks") + 1)
       await ctx.reply(
-        `Al ${count} keer sinds ${firstStat.date.toLocaleString(
+        `Al ${count} keer sinds ${firstDate.toLocaleString(
           DateTime.DATE_MED,
         )}\n${countWeek} waren deze week\n${countMonth} waren de laatste maand\nGemiddeld ${dayAvg.toFixed(
           3,
