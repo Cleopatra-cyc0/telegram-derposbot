@@ -78,7 +78,7 @@ export default async function recordStat(
       const countWeek = stats.filter(stat => stat.date > weekStart).length
       const countMonth = stats.filter(stat => stat.date > monthAgo).length
       const dayAvg = count / (DateTime.now().diff(firstDate).as("days") + 1)
-      const weekAvg = count / (DateTime.now().diff(firstDate).as("weeks") + 1)
+      const weekAvg = count / (DateTime.now().diff(firstDate).as("weeks") + weekStart.diffNow().as("days") / 7)
       await ctx.reply(
         `Al ${count} keer sinds ${firstDate.toLocaleString(
           DateTime.DATE_MED,
