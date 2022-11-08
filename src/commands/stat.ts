@@ -74,7 +74,9 @@ export default async function recordStat(
       await ctx.reply(
         `Al ${count} keer sinds ${firstStat.date.toLocaleString(
           DateTime.DATE_MED,
-        )}\n${countWeek} waren deze week\n${countMonth} waren de laatste maand\nGemiddeld ${dayAvg} per dag\nGemiddeld ${weekAvg} per week`,
+        )}\n${countWeek} waren deze week\n${countMonth} waren de laatste maand\nGemiddeld ${dayAvg.toFixed(
+          3,
+        )} per dag\nGemiddeld ${weekAvg.toFixed(3)} per week`,
       )
     } else {
       await ctx.reply("Ik ken jou helemaal niet, flikker op")
