@@ -48,7 +48,17 @@ export default function dokCommands(bot: Telegraf<MyTelegrafContext>) {
             await ctx.reply("Je hebt helemaal geen dok pikketrekker")
           }
         } else {
-          logger.error({ response: res }, "error while fetching dok info")
+          logger.error(
+            {
+              response: {
+                status: res.status,
+                statusText: res.statusText,
+                body: await res.text(),
+                headers: res.headers.raw(),
+              },
+            },
+            "error while fetching dok info",
+          )
           await ctx.reply("Ging iets mis")
         }
       } else {
@@ -126,7 +136,18 @@ export async function dokHandler(ctx: MyKoaContext) {
     }
   } else {
     ctx.res.statusCode = 400
-    logger.error("Invalid DOK notification webhook request")
+    logger.error(
+      {
+        request: {
+          url: ctx.request.URL,
+          headers: ctx.request.headers,
+          body: ctx.request.body,
+          method: ctx.request.method,
+          raw: ctx.request.toJSON(),
+        },
+      },
+      "Invalid DOK notification webhook request, no body",
+    )
   }
 
   ctx.res.end()

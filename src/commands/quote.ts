@@ -44,7 +44,7 @@ async function getCloeMessage(db: EntityManager) {
               error: JSON.stringify(error, Object.getOwnPropertyNames(error)),
               memberId: cloetje.author.congressusId,
             },
-            "error fetching member",
+            "error fetching cloe author member",
           )
           return null
         })
