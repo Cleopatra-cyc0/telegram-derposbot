@@ -21,6 +21,7 @@ import { startTaskRunner } from "./taskRunner"
 import commandList from "./commands/commandlist"
 import quoteCommands from "./commands/quote"
 import { Update } from "telegraf/typings/core/types/typegram"
+import chatGpt from "./commands/chatgpt"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -76,6 +77,7 @@ userCommands(bot)
 announcementCommands(bot)
 dokCommands(bot)
 quoteCommands(bot)
+chatGpt(bot)
 ;(async () => {
   let domain
   if (process.env.WEBHOOK_DOMAIN != null && process.env.WEBHOOK_DOMAIN != "") {
