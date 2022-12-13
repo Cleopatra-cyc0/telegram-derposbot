@@ -33,8 +33,8 @@ export default function chatGpt(bot: Telegraf<MyTelegrafContext>) {
       }
     } else {
       ctx.reply(
-        `Omdat dit centjes kost mag je maar 1 keer per uur.
-        Vraag anders aan bestuur of ze willen betalen (kost *bijna* niks)`,
+        `Omdat dit centjes kost mag je maar 1 keer per uur.\
+Vraag anders aan bestuur of ze willen betalen (kost *bijna* niks)`,
       )
     }
   })
