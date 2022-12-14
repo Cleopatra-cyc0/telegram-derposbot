@@ -17,9 +17,11 @@ export default function chatGpt(bot: Telegraf<MyTelegrafContext>) {
     if (checkAndInsertRateLimit(`chat ${ctx.from.id}`, 1, 60 * 60 * 1000) || ctx.from.id === superAdminUserId) {
       try {
         const { data } = await openai.createCompletion({
-          model: "babbage",
-          prompt: ctx.message.text.split(" ").slice(1).join(" "),
-          temperature: 0.5,
+          model: "davinci",
+          prompt: `The following is a question for an AI assistant. The assistant is helpful, creative, clever but sometimes a bit mean.
+You need to generate one answer to the question below.
+question: ${ctx.message.text.split(" ").slice(1).join(" ")}`,
+          temperature: 0.0,
           best_of: 1,
         })
         if (data.choices.length > 0 && data.choices[0].text != null) {
