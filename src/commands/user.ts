@@ -32,9 +32,12 @@ const oAuthStateStore: Map<ReturnType<typeof uuid4>, User["telegramId"]> = new M
  */
 export function userCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.use(async (ctx, next) => {
-    if (ctx.message?.from?.id != null && ctx.chat?.type === "private") {
-      const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)
-      user.telegramPrivateChatId = ctx.chat.id
+    if (ctx.from?.id != null) {
+      const user = await ctx.db.getRepository(User).findOrCreate(ctx.from.id)
+      user.telegramUsername = ctx.from.username
+      if (ctx.chat?.type === "private") {
+        user.telegramPrivateChatId = ctx.chat.id
+      }
       ctx.db.persist(user)
     }
     await next()
