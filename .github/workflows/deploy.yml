@@ -21,4 +21,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: derposbot:latest
+          tags: ghcr.io/mees-/telegram-derposbot:latest
