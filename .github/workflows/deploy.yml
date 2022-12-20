@@ -17,8 +17,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
+
+      - name: Lowercase the repo name and username
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+
       - name: build docker image
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ghcr.io/mees-/telegram-derposbot:latest
+          tags: ghcr.io/${{ env.REPO }}
