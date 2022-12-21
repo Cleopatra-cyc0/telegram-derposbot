@@ -16,7 +16,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ github.GH_PAT }}
+          password: ${{ secrets.GH_PAT }}
 
       - name: Lowercase the repo name and username
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
@@ -28,6 +28,7 @@ jobs:
           tags: ghcr.io/${{ env.REPO }}:${{ github.sha }} , ghcr.io/${{env.REPO }}:latest
 
   deploy:
+    needs: build_and_push
     runs-on: ubuntu-latest
     env:
       container_name: derposbot
