@@ -3,8 +3,6 @@ name: Deploy to private server
 on:
   push:
     branches: ["master"]
-    tags:
-      - "*"
 
 jobs:
   build_and_push:
