@@ -16,7 +16,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ github.token }}
+          password: ${{ github.GH_PAT }}
 
       - name: Lowercase the repo name and username
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
@@ -25,4 +25,45 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ghcr.io/${{ env.REPO }}
+          tags: ghcr.io/${{ env.REPO }}:${{ github.sha }} , ghcr.io/${{env.REPO }}:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      container_name: derposbot
+    steps:
+      - name: Lowercase the repo name and username
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/server.key
+          chmod 600 ~/.ssh/server.key
+          cat >>~/.ssh/config <<END
+          Host server
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/server.key
+            StrictHostKeyChecking no
+          END
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+
+      - name: Log in to GitHub container registry
+        run: ssh server 'docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GH_PAT }}'
+
+      - name: Stop and delete previous container
+        run: ssh server 'docker stop ${{ env.container_name }} && docker rm ${{ env.container_name }}'
+        continue-on-error: true
+
+      - name: Remove previous image
+        run: |
+          ssh server "docker images | grep ${{ env.REPO }} | tr -s ' ' | cut -d ' ' -f 2 | xargs -I {} docker rmi \
+          ghcr.io/${{ env.REPO }}:{}"
+        continue-on-error: true
+
+      - name: Docker-compose up to restart new image
+        run: ssh server "cd ${{ secrets.DOCKER_COMPOSE_FOLDER }} && docker-compose up -d"
