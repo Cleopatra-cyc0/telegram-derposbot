@@ -79,12 +79,15 @@ export default async function recordStat(
       const countMonth = stats.filter(stat => stat.date > monthAgo).length
       const dayAvg = count / (DateTime.now().diff(firstDate).as("days") + 1)
       const weekAvg = dayAvg * 7
+      const yearPrediction = dayAvg * 365
       await ctx.reply(
         `Al ${count} keer sinds ${firstDate.toLocaleString(
           DateTime.DATE_MED,
         )}\n${countWeek} waren deze week\n${countMonth} waren de laatste maand\nGemiddeld ${dayAvg.toFixed(
           3,
-        )} per dag\nGemiddeld ${weekAvg.toFixed(3)} per week`,
+        )} per dag\nGemiddeld ${weekAvg.toFixed(3)} per week\nop dit tempo haal je ${yearPrediction.toFixed(
+          0,
+        )} per jaar`,
       )
     } else {
       await ctx.reply("Ik ken jou helemaal niet, flikker op")
