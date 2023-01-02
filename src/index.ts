@@ -22,6 +22,7 @@ import commandList from "./commands/commandlist"
 import quoteCommands from "./commands/quote"
 import { Update } from "telegraf/typings/core/types/typegram"
 import chatGpt from "./commands/chatgpt"
+import { StatType } from "./entities/Stat"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -69,11 +70,11 @@ const stopTaskRunner = startTaskRunner(bot.telegram)
 userCommands(bot)
 triviaCommands(bot)
 subscriptionCommands(bot)
-recordStat(bot, "shit", "poep", "poepsie", "poepstats")
-recordStat(bot, "blowjob", "pijp", "pijpsie", "pijpstats")
-recordStat(bot, "cunnilingus", "bef", "befsie", "befstats")
-recordStat(bot, "puke", "barf", "unbarf", "barfstats")
-recordStat(bot, "gym", "gain", "gainloss", "gains", count => `Lekker pompen, al ${count}`)
+recordStat(bot, StatType.Shit, "poep", "poepsie", "poepstats")
+recordStat(bot, StatType.Blowjob, "pijp", "pijpsie", "pijpstats")
+recordStat(bot, StatType.Cunnilingus, "bef", "befsie", "befstats")
+recordStat(bot, StatType.Puke, "barf", "unbarf", "barfstats")
+recordStat(bot, StatType.Gym, "gain", "gainloss", "gains", count => `Lekker pompen, al ${count}`)
 announcementCommands(bot)
 dokCommands(bot)
 quoteCommands(bot)

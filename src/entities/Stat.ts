@@ -26,3 +26,11 @@ export default class Stat {
   })
   user!: User
 }
+
+export enum StatType {
+  Shit = "shit",
+  Blowjob = "blowjob",
+  Cunnilingus = "cunnilingus",
+  Puke = "puke",
+  Gym = "gym",
+}
