@@ -2,6 +2,7 @@ import { DateTime } from "luxon"
 import { Telegraf } from "telegraf"
 import { MyTelegrafContext } from ".."
 import Stat, { StatType } from "../entities/Stat"
+import StatSettings from "../entities/StatSettings"
 import User from "../entities/User"
 import logger from "../log"
 import { BotCommandScope, registerCommand } from "./commandlist"
@@ -12,6 +13,7 @@ export default async function recordStat(
   recordCommand: string,
   undoCommand: string,
   infoCommand: string,
+  settingCommand: string,
   addMsg = (count: number) => (Math.random() > 0.95 ? `Gast doe normaal, al ${count}` : `Lekker hoor, je ${count}e`),
 ) {
   registerCommand(recordCommand, `Sla een ${recordCommand}je op`, [
@@ -91,6 +93,23 @@ export default async function recordStat(
       )
     } else {
       await ctx.reply("Ik ken jou helemaal niet, flikker op")
+    }
+  })
+
+  registerCommand(settingCommand, `Zet de startdatum vanaf wanneer de bot je ${infoCommand} telt`, [
+    BotCommandScope.Private,
+    BotCommandScope.Groups,
+    BotCommandScope.Admins,
+  ])
+  bot.command(settingCommand, async ctx => {
+    const startDate = DateTime.fromISO(ctx.message.text.trim().split(" ")[1])
+    if (startDate.isValid) {
+      const user = await ctx.db.getRepository(User).findOrCreate(ctx.from.id)
+      const repo = ctx.db.getRepository(StatSettings)
+      await repo.setStatStartDate(type, user, startDate)
+      await ctx.reply(`Startdatum is nu ${startDate.toLocaleString(DateTime.DATE_MED)}`)
+    } else {
+      await ctx.reply("Geen geldige datum")
     }
   })
 }
