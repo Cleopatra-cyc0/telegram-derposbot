@@ -300,6 +300,66 @@
     },
     {
       "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "stat_type": {
+          "name": "stat_type",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "current_period_start": {
+          "name": "current_period_start",
+          "type": "varchar(30)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        }
+      },
+      "name": "stat_settings",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "stat_settings_pkey",
+          "columnNames": [
+            "user_id",
+            "stat_type"
+          ],
+          "composite": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "stat_settings_user_id_foreign": {
+          "constraintName": "stat_settings_user_id_foreign",
+          "columnNames": [
+            "user_id"
+          ],
+          "localTableName": "public.stat_settings",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.user",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
         "id": {
           "name": "id",
           "type": "serial",
