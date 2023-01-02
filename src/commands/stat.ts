@@ -62,28 +62,27 @@ export default async function recordStat(
     BotCommandScope.Admins,
   ])
   bot.command(infoCommand, async ctx => {
-    const user = await ctx.db.findOne(User, { telegramId: ctx.message.from.id })
-    const alternateStartDate = DateTime.fromISO(ctx.message.text.trim().split(" ")[1])
+    const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)
+    const statSetting = await ctx.db.findOne(StatSettings, { user, statType: type })
+    let startDate = statSetting?.currentPeriodStart
     let stats
-    if (alternateStartDate.isValid) {
-      stats = await ctx.db.find(Stat, { user, type, date: { $gte: alternateStartDate } })
+    if (startDate != null) {
+      stats = await ctx.db.find(Stat, { user, type, date: { $gte: startDate } })
     } else {
       stats = await ctx.db.find(Stat, { user, type })
     }
     if (user != null && stats.length > 0) {
-      const firstDate = alternateStartDate.isValid
-        ? alternateStartDate
-        : stats.reduce((last, curr) => (curr.date < last.date ? curr : last)).date
+      startDate = startDate ?? stats.reduce((last, curr) => (curr.date < last.date ? curr : last)).date
       const count = stats.length
       const weekStart = DateTime.now().set({ hour: 0, second: 0, minute: 0, weekday: 1 })
       const monthAgo = DateTime.now().minus({ month: 1 })
       const countWeek = stats.filter(stat => stat.date > weekStart).length
       const countMonth = stats.filter(stat => stat.date > monthAgo).length
-      const dayAvg = count / (DateTime.now().diff(firstDate).as("days") + 1)
+      const dayAvg = count / (DateTime.now().diff(startDate).as("days") + 1)
       const weekAvg = dayAvg * 7
       const yearPrediction = dayAvg * 365
       await ctx.reply(
-        `Al ${count} keer sinds ${firstDate.toLocaleString(
+        `Al ${count} keer sinds ${startDate.toLocaleString(
           DateTime.DATE_MED,
         )}\n${countWeek} waren deze week\n${countMonth} waren de laatste maand\nGemiddeld ${dayAvg.toFixed(
           3,

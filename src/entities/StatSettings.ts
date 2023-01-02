@@ -27,13 +27,17 @@ export default class StatSettings {
 
 export class CustomStatSettingsRepository extends EntityRepository<StatSettings> {
   async setStatStartDate(statType: StatType, user: User, startDate: DateTime) {
-    let existingStatSettings = await this.findOne({ user, statType })
-    if (existingStatSettings == null) {
-      existingStatSettings = new StatSettings(user, statType, startDate)
-      await this.persist(existingStatSettings).flush()
+    if (startDate.isValid) {
+      let existingStatSettings = await this.findOne({ user, statType })
+      if (existingStatSettings == null) {
+        existingStatSettings = new StatSettings(user, statType, startDate)
+        await this.persist(existingStatSettings).flush()
+      } else {
+        existingStatSettings.currentPeriodStart = startDate
+        await this.persist(existingStatSettings).flush()
+      }
     } else {
-      existingStatSettings.currentPeriodStart = startDate
-      await this.persist(existingStatSettings).flush()
+      throw new Error("invalid date")
     }
   }
 }
