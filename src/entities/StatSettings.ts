@@ -18,7 +18,7 @@ export default class StatSettings {
   @Property({ type: LuxonDate })
   currentPeriodStart?: DateTime
 
-  @Property()
+  @Property({ type: "bigint" })
   forwardChat?: number
 
   constructor(user: User, statType: StatType) {
