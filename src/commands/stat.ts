@@ -7,15 +7,21 @@ import User from "../entities/User"
 import logger from "../log"
 import { BotCommandScope, registerCommand } from "./commandlist"
 
+type StatOptions = {
+  type: StatType
+  recordCommand: string
+  undoCommand: string
+  infoCommand: string
+  settingCommand: string
+  addMessage?: (count: number) => string
+}
+
 export default async function recordStat(
   bot: Telegraf<MyTelegrafContext>,
-  type: StatType,
-  recordCommand: string,
-  undoCommand: string,
-  infoCommand: string,
-  settingCommand: string,
-  addMsg = (count: number) => (Math.random() > 0.95 ? `Gast doe normaal, al ${count}` : `Lekker hoor, je ${count}e`),
+  { type, recordCommand, undoCommand, infoCommand, settingCommand, addMessage }: StatOptions,
 ) {
+  const addMsg =
+    addMessage ?? (count => (Math.random() > 0.95 ? `Gast doe normaal, al ${count}` : `Lekker hoor, je ${count}e`))
   registerCommand(recordCommand, `Sla een ${recordCommand}je op`, [
     BotCommandScope.Private,
     BotCommandScope.Groups,

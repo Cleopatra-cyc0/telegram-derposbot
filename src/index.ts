@@ -70,11 +70,42 @@ const stopTaskRunner = startTaskRunner(bot.telegram)
 userCommands(bot)
 triviaCommands(bot)
 subscriptionCommands(bot)
-recordStat(bot, StatType.Shit, "poep", "poepsie", "poepstats", "poepstart")
-recordStat(bot, StatType.Blowjob, "pijp", "pijpsie", "pijpstats", "pijpstart")
-recordStat(bot, StatType.Cunnilingus, "bef", "befsie", "befstats", "befstart")
-recordStat(bot, StatType.Puke, "barf", "unbarf", "barfstats", "barfstart")
-recordStat(bot, StatType.Gym, "gain", "gainloss", "gains", "gainstart", count => `Lekker pompen, al ${count}`)
+recordStat(bot, {
+  type: StatType.Shit,
+  recordCommand: "poep",
+  undoCommand: "poepsie",
+  infoCommand: "poepstats",
+  settingCommand: "poepstart",
+})
+recordStat(bot, {
+  type: StatType.Blowjob,
+  recordCommand: "pijp",
+  undoCommand: "pijpsie",
+  infoCommand: "pijpstats",
+  settingCommand: "pijpstart",
+})
+recordStat(bot, {
+  type: StatType.Cunnilingus,
+  recordCommand: "bef",
+  undoCommand: "befsie",
+  infoCommand: "befstats",
+  settingCommand: "befstart",
+})
+recordStat(bot, {
+  type: StatType.Puke,
+  recordCommand: "barf",
+  undoCommand: "unbarf",
+  infoCommand: "barfstats",
+  settingCommand: "barfstart",
+})
+recordStat(bot, {
+  type: StatType.Gym,
+  recordCommand: "gain",
+  undoCommand: "gainloss",
+  infoCommand: "gains",
+  settingCommand: "gainstart",
+  addMessage: count => `Lekker pompen, al ${count}`,
+})
 announcementCommands(bot)
 dokCommands(bot)
 quoteCommands(bot)
