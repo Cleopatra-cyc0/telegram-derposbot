@@ -145,7 +145,7 @@ export default async function recordStat(
           await bot.telegram.sendMessage(chatId, "even testen of ik hier kan posten")
           const user = await ctx.db.getRepository(User).findOrCreate(ctx.from.id)
           await ctx.db.getRepository(StatSettings).setForwardChat(type, user, chatId)
-          await ctx.reply(`Je ${recordCommand} wordt nu ook naar ${chatId} gestuurd}`)
+          await ctx.reply(`Je ${recordCommand} wordt nu ook naar ${chatId} gestuurd`)
         } catch (e) {
           logger.debug(
             { chatId, error: JSON.stringify(e, Object.getOwnPropertyNames(e)) },
