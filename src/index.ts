@@ -76,6 +76,7 @@ recordStat(bot, {
   undoCommand: "poepsie",
   infoCommand: "poepstats",
   settingCommand: "poepstart",
+  forwardCommand: "poepforward",
 })
 recordStat(bot, {
   type: StatType.Blowjob,
