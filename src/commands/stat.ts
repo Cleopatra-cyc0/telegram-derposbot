@@ -132,6 +132,11 @@ export default async function recordStat(
   })
 
   if (forwardCommand != null) {
+    registerCommand(settingCommand, `Stel een chat in om je ${recordCommand} naar door te sturen`, [
+      BotCommandScope.Private,
+      BotCommandScope.Groups,
+      BotCommandScope.Admins,
+    ])
     bot.command(forwardCommand, async ctx => {
       const chatIdStr = ctx.message.text.trim().split(" ")[1]
       const chatId = parseInt(chatIdStr)
