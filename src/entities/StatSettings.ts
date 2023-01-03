@@ -16,12 +16,14 @@ export default class StatSettings {
   statType!: StatType
 
   @Property({ type: LuxonDate })
-  currentPeriodStart!: DateTime
+  currentPeriodStart?: DateTime
 
-  constructor(user: User, statType: StatType, currentPeriodStart: DateTime) {
+  @Property()
+  forwardChat?: number
+
+  constructor(user: User, statType: StatType) {
     this.user = user
     this.statType = statType
-    this.currentPeriodStart = currentPeriodStart
   }
 }
 
@@ -30,14 +32,21 @@ export class CustomStatSettingsRepository extends EntityRepository<StatSettings>
     if (startDate.isValid) {
       let existingStatSettings = await this.findOne({ user, statType })
       if (existingStatSettings == null) {
-        existingStatSettings = new StatSettings(user, statType, startDate)
-        await this.persist(existingStatSettings).flush()
-      } else {
-        existingStatSettings.currentPeriodStart = startDate
-        await this.persist(existingStatSettings).flush()
+        existingStatSettings = new StatSettings(user, statType)
       }
+      existingStatSettings.currentPeriodStart = startDate
+      await this.persist(existingStatSettings).flush()
     } else {
       throw new Error("invalid date")
     }
+  }
+
+  async setForwardChat(statType: StatType, user: User, chatId: number) {
+    let existingStatSettings = await this.findOne({ user, statType })
+    if (existingStatSettings == null) {
+      existingStatSettings = new StatSettings(user, statType)
+    }
+    existingStatSettings.forwardChat = chatId
+    await this.persist(existingStatSettings).flush()
   }
 }

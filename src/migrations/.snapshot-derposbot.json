@@ -324,8 +324,17 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "string"
+        },
+        "forward_chat": {
+          "name": "forward_chat",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
         }
       },
       "name": "stat_settings",

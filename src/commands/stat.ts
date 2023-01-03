@@ -13,12 +13,13 @@ type StatOptions = {
   undoCommand: string
   infoCommand: string
   settingCommand: string
+  forwardCommand?: string
   addMessage?: (count: number) => string
 }
 
 export default async function recordStat(
   bot: Telegraf<MyTelegrafContext>,
-  { type, recordCommand, undoCommand, infoCommand, settingCommand, addMessage }: StatOptions,
+  { type, recordCommand, undoCommand, infoCommand, settingCommand, forwardCommand, addMessage }: StatOptions,
 ) {
   const addMsg =
     addMessage ?? (count => (Math.random() > 0.95 ? `Gast doe normaal, al ${count}` : `Lekker hoor, je ${count}e`))
@@ -39,6 +40,18 @@ export default async function recordStat(
     logger.trace({ user, type }, "new stat")
     const count = await ctx.db.count(Stat, { user, type })
     await ctx.reply(addMsg(count))
+
+    const statSetting = await ctx.db.findOne(StatSettings, { user, statType: type })
+    if (statSetting != null && statSetting.forwardChat != null) {
+      try {
+        await ctx.telegram.sendMessage(statSetting.forwardChat, `van ${ctx.message.from.first_name}:\n${addMsg(count)}`)
+      } catch (e) {
+        logger.error(
+          { error: JSON.stringify(e, Object.getOwnPropertyNames(e)) },
+          "Couldn't send forward message to forward chat",
+        )
+      }
+    }
   })
 
   registerCommand(undoCommand, `haal een ${recordCommand}je weg`, [
@@ -117,4 +130,27 @@ export default async function recordStat(
       await ctx.reply("Geen geldige datum")
     }
   })
+
+  if (forwardCommand != null) {
+    bot.command(forwardCommand, async ctx => {
+      const chatIdStr = ctx.message.text.trim().split(" ")[1]
+      const chatId = parseInt(chatIdStr)
+      if (!isNaN(chatId)) {
+        try {
+          await bot.telegram.sendMessage(chatId, "even testen of ik hier kan posten")
+          const user = await ctx.db.getRepository(User).findOrCreate(ctx.from.id)
+          await ctx.db.getRepository(StatSettings).setForwardChat(type, user, chatId)
+          await ctx.reply(`Je ${recordCommand} wordt nu ook naar ${chatId} gestuurd}`)
+        } catch (e) {
+          logger.debug(
+            { chatId, error: JSON.stringify(e, Object.getOwnPropertyNames(e)) },
+            "Could not forward message to requested forward chat",
+          )
+          await ctx.reply("Ik kan niet naar die chat")
+        }
+      } else {
+        await ctx.reply("Geen geldige chatid")
+      }
+    })
+  }
 }
