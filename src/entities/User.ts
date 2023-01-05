@@ -25,6 +25,12 @@ export default class User {
   telegramUsername?: string
 
   @Property()
+  firstName?: string
+
+  @Property()
+  lastName?: string
+
+  @Property()
   @Unique()
   congressusId?: number
 

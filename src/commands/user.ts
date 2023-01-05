@@ -35,6 +35,8 @@ export function userCommands(bot: Telegraf<MyTelegrafContext>) {
     if (ctx.from?.id != null) {
       const user = await ctx.db.getRepository(User).findOrCreate(ctx.from.id)
       user.telegramUsername = ctx.from.username
+      user.firstName = ctx.from.first_name
+      user.lastName = ctx.from.last_name
       if (ctx.chat?.type === "private") {
         user.telegramPrivateChatId = ctx.chat.id
       }
