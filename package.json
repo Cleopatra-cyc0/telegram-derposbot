@@ -8,7 +8,7 @@
     "start:development": "ts-node src/index.ts | pino-pretty",
     "start": "npm run start:$NODE_ENV",
     "start:production": "node build/index.js",
-    "build": "tsc && git rev-parse HEAD > build/commit.txt"
+    "build": "tsc"
   },
   "dependencies": {
     "@koa/router": "^10.1.1",

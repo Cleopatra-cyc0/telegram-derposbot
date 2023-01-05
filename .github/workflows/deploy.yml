@@ -24,6 +24,8 @@ jobs:
         with:
           push: true
           tags: ghcr.io/${{ env.REPO }}:${{ github.sha }} , ghcr.io/${{env.REPO }}:latest
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
 
   deploy:
     needs: build_and_push

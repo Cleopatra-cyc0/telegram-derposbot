@@ -2,6 +2,9 @@
 FROM node:18-alpine
 ENV NODE_ENV=development
 
+ARG GIT_COMMIT
+ENV GIT_COMMIT=$GIT_COMMIT
+
 WORKDIR /app
 
 COPY package*.json ./

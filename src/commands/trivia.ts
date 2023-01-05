@@ -3,19 +3,8 @@ import { Telegraf } from "telegraf"
 import { MyTelegrafContext } from ".."
 import { getMemberBirthDate } from "../model"
 import { calculateDaysTillBirthDay, getRandomLocation } from "../util"
-import { readFileSync } from "fs"
 
-let gitHash: string
-if (process.env.GIT_HASH != null && process.env.GIT_HASH !== "") {
-  gitHash = process.env.GIT_HASH
-} else {
-  const readFromFile = readFileSync("build/commit.txt", "utf8")
-  if (readFromFile != null && readFromFile !== "") {
-    gitHash = readFromFile
-  } else {
-    gitHash = "unknown"
-  }
-}
+const gitHash = process.env.GIT_COMMIT ? process.env.GIT_COMMIT : "unknown"
 
 export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.start(async ctx => {
