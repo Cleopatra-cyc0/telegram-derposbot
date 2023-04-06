@@ -23,6 +23,7 @@ import quoteCommands from "./commands/quote"
 import { Update } from "telegraf/typings/core/types/typegram"
 import chatGpt from "./commands/chatgpt"
 import { StatType } from "./entities/Stat"
+import { P } from "pino"
 Settings.defaultZone = process.env.TIMEZONE ?? "utc"
 
 const telegramToken = process.env.TG_TOKEN
@@ -106,6 +107,28 @@ recordStat(bot, {
   infoCommand: "gains",
   settingCommand: "gainstart",
   addMessage: count => `Lekker pompen, al ${count}`,
+})
+recordStat(bot, {
+  type: StatType.Gym,
+  recordCommand: "gayn",
+  undoCommand: "gaynloss",
+  infoCommand: "gayns",
+  settingCommand: "gaynstart",
+  addMessage: count => {
+    const random = Math.random()
+    const options = [
+      `Poah steek die maar in je reet, al ${count}`,
+      `Lekker bezig weer, laat de mannetjes maar zien hoe het moet met je ${count}e`,
+      `Als jij het niet doet, wie doet het dan wel hè?\nal ${count}`,
+      `Lekker slurpen aan de ${count}e lolly`,
+      `Hard werk wel, dat onderschat je vaak. Al ${count}`,
+      `Poepen is dr niks bij, al ${count}`,
+      `De beste pikkelikker in een straal van 30 meter, al ${count}`,
+      `Daar kan Gerard Joling nog een puntje aan zuigen, al ${count}`,
+      `Echt slurpen tot die laatste druppel, dat kan alleen jij. Al ${count}`,
+    ]
+    return options[Math.floor(random * options.length)]
+  },
 })
 announcementCommands(bot)
 dokCommands(bot)
