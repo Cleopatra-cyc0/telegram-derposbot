@@ -1,5 +1,5 @@
 import { DateTime } from "luxon"
-import { Telegraf } from "telegraf"
+import { Telegraf, TelegramError } from "telegraf"
 import { MyTelegrafContext } from ".."
 import Stat, { StatType } from "../entities/Stat"
 import StatSettings from "../entities/StatSettings"
@@ -46,10 +46,20 @@ export default async function recordStat(
       try {
         await ctx.telegram.sendMessage(statSetting.forwardChat, `van ${ctx.message.from.first_name}:\n${addMsg(count)}`)
       } catch (e) {
-        logger.error(
-          { error: JSON.stringify(e, Object.getOwnPropertyNames(e)) },
-          "Couldn't send forward message to forward chat",
-        )
+        if (e instanceof TelegramError && e.parameters?.migrate_to_chat_id != null) {
+          logger.info({ error: JSON.stringify(e, Object.getOwnPropertyNames(e)) }, "Forward chat migrated, updating")
+          statSetting.forwardChat = e.parameters.migrate_to_chat_id
+          ctx.db.persist(statSetting)
+          await ctx.telegram.sendMessage(
+            statSetting.forwardChat,
+            `van ${ctx.message.from.first_name}:\n${addMsg(count)}`,
+          )
+        } else {
+          logger.error(
+            { error: JSON.stringify(e, Object.getOwnPropertyNames(e)) },
+            "Couldn't send forward message to forward chat",
+          )
+        }
       }
     }
   })
