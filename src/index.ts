@@ -63,7 +63,7 @@ bot.use(async (ctx, next) => {
 bot.use(async (ctx, next) => {
   ctx.db = (await MikroOrm).em.fork()
   await next()
-  ctx.db.flush()
+  await ctx.db.flush()
 })
 
 const stopCronJob = birthdayCommands(bot)
