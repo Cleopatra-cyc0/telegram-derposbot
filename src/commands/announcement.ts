@@ -1,7 +1,7 @@
 import { DateTime } from "luxon"
 import { Telegraf } from "telegraf"
 import TelegrafStatelessQuestion from "telegraf-stateless-question/dist/source"
-import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram"
+import { InlineKeyboardButton, Message } from "telegraf/typings/core/types/typegram"
 import { MyTelegrafContext } from ".."
 import { DeleteMessageTask, ForwardMessageTask, MessageTask, Task } from "../entities/Task"
 import logger from "../log"
@@ -79,6 +79,8 @@ const constructScheduleInlineKeyboard = (messageId: number, now: DateTime) => {
 
 const announcementQuestion = new TelegrafStatelessQuestion<MyTelegrafContext>("Stuur nu je mededeling", async ctx => {
   if (ctx.chat != null) {
+    const messageText = (ctx.message as Message & { text: string }).text
+    logger.trace({ from: ctx.message.from.id, text: messageText }, `Got new announcement request`)
     const forwardedMessage = await ctx.forwardMessage(announcementApprovalChatId)
     await ctx.telegram.sendMessage(announcementApprovalChatId, "Goedkeuren?", {
       reply_to_message_id: forwardedMessage.message_id,
