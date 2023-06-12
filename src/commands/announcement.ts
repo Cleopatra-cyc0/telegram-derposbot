@@ -242,13 +242,6 @@ const announcementQuestion = new TelegrafStatelessQuestion<MyTelegrafContext>("S
       },
     })
     await ctx.reply("Joe, ligt klaar voor goedkeuring", { reply_markup: { remove_keyboard: true } })
-
-    const reportSeenMessageTask = new MessageTask(
-      DateTime.now().plus({ minutes: getRandomInRange(5, 20, 0) }),
-      ctx.chat.id,
-      "Bestuur heef je bericht gezien en is er mee bezig",
-    )
-    ctx.db.persist(reportSeenMessageTask)
   } else {
     logger.error({ message: ctx.message }, "Received message without chat attached")
     await ctx.reply("Er gaat nu wel iets raars mis hoor, sorry")
@@ -327,6 +320,10 @@ async function scheduleSend(
       ],
     ],
   })
+  await telegram.sendMessage(
+    announcementMessageId.chatId,
+    `Mededeling gaat op ${sendDate.toLocaleString(DateTime.DATETIME_FULL)}`,
+  )
 }
 
 export default function announcementCommands(bot: Telegraf<MyTelegrafContext>) {
@@ -358,8 +355,16 @@ export default function announcementCommands(bot: Telegraf<MyTelegrafContext>) {
             callbackData.announcementMessageId.chatId,
             callbackData.announcementMessageId.messageId,
           )
+          await ctx.telegram.sendMessage(
+            callbackData.announcementMessageId.chatId,
+            "Woweee, ze hebben hem gewoon direct goedgekeurd en hij is gedeeld!",
+          )
         } else if (callbackData.type === AnnouncementReply.Decline) {
           await ctx.editMessageText("Afgekeurd")
+          await ctx.telegram.sendMessage(
+            callbackData.announcementMessageId.chatId,
+            "Helaas, je mededeling is afgekeurd",
+          )
         } else if (callbackData.type === AnnouncementReply.Schedule) {
           await ctx.editMessageReplyMarkup({
             inline_keyboard: constructScheduleInlineKeyboard(callbackData.announcementMessageId, DateTime.now()),
@@ -414,6 +419,7 @@ export default function announcementCommands(bot: Telegraf<MyTelegrafContext>) {
           await ctx.editMessageReplyMarkup({
             inline_keyboard: constructInitialInlineKeyboard(callbackData.announcementMessageId),
           })
+          await ctx.telegram.sendMessage(callbackData.announcementMessageId.chatId, "Later versturen geannuleerd")
         } else if (callbackData.type === AnnouncementReply.ScheduleCustomTimeCancel) {
           await ctx.editMessageReplyMarkup({
             inline_keyboard: constructScheduleInlineKeyboard(callbackData.announcementMessageId, DateTime.now()),
