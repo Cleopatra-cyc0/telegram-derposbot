@@ -36,66 +36,193 @@ enum AnnouncementReply {
   ScheduleCustomTimeCancel,
 }
 
-const constructInitialInlineKeyboard = (messageId: number) => [
+type CallbackDataArgs =
+  | {
+      type:
+        | AnnouncementReply.Approve
+        | AnnouncementReply.Schedule
+        | AnnouncementReply.Decline
+        | AnnouncementReply.ScheduleOptionCancel
+        | AnnouncementReply.ScheduleCustomTime
+        | AnnouncementReply.ScheduleCustomTimeCancel
+      announcementMessageId: MessageIdentifier
+    }
+  | {
+      type: AnnouncementReply.ScheduleAnswer
+      announcementMessageId: MessageIdentifier
+      time: number
+    }
+  | {
+      type: AnnouncementReply.ScheduleCancel
+      announcementMessageId: MessageIdentifier
+      sendAnnouncementTaskId: number
+      deleteStatusMessageTaskId: number
+    }
+
+const encodeCallbackData = (data: CallbackDataArgs) => {
+  const encodeMessageId = (id: MessageIdentifier) => `${id.chatId}-${id.messageId}`
+  if (
+    data.type === AnnouncementReply.Approve ||
+    data.type === AnnouncementReply.Schedule ||
+    data.type === AnnouncementReply.Decline ||
+    data.type === AnnouncementReply.ScheduleOptionCancel ||
+    data.type === AnnouncementReply.ScheduleCustomTime ||
+    data.type === AnnouncementReply.ScheduleCustomTimeCancel
+  ) {
+    return `APR-${data.type.toString()}${encodeMessageId(data.announcementMessageId)}`
+  } else if (data.type === AnnouncementReply.ScheduleAnswer) {
+    return `APR-${data.type.toString()}${encodeMessageId(data.announcementMessageId)}-${data.time}`
+  } else if (data.type === AnnouncementReply.ScheduleCancel) {
+    return `APR-${data.type.toString()}${encodeMessageId(data.announcementMessageId)}-${data.sendAnnouncementTaskId}-${
+      data.deleteStatusMessageTaskId
+    }`
+  } else {
+    throw new Error("Invalid AnnouncementReply type")
+  }
+}
+
+const decodeCallbackData = (data: string): CallbackDataArgs => {
+  const parseMessageId = (parts: string[]): MessageIdentifier => {
+    const chatId = parseInt(parts[0])
+    const messageId = parseInt(parts[1])
+    if (isNaN(chatId) || isNaN(messageId)) {
+      throw new Error("Invalid callback data")
+    }
+    return { chatId, messageId }
+  }
+  if (!data.startsWith("APR-")) {
+    throw new Error("Invalid callback data")
+  }
+  const typeNumber = parseInt(data.slice(4, 5))
+  if (isNaN(typeNumber)) {
+    throw new Error("Invalid callback data")
+  }
+  const type = typeNumber as AnnouncementReply
+  if (!isMemberOfEnum(type, AnnouncementReply)) {
+    throw new Error("Invalid callback data")
+  }
+  const parts = data.slice(5).split("-")
+  if (
+    type === AnnouncementReply.Approve ||
+    type === AnnouncementReply.Schedule ||
+    type === AnnouncementReply.Decline ||
+    type === AnnouncementReply.ScheduleOptionCancel ||
+    type === AnnouncementReply.ScheduleCustomTime ||
+    type === AnnouncementReply.ScheduleCustomTimeCancel
+  ) {
+    return {
+      type,
+      announcementMessageId: parseMessageId(parts),
+    }
+  } else if (type === AnnouncementReply.ScheduleAnswer) {
+    const time = parseInt(parts[2])
+    if (isNaN(time)) {
+      throw new Error("Invalid callback data")
+    }
+    return {
+      type,
+      announcementMessageId: parseMessageId(parts),
+      time,
+    }
+  } else if (type === AnnouncementReply.ScheduleCancel) {
+    const sendAnnouncementTaskId = parseInt(parts[2])
+    const deleteStatusMessageTaskId = parseInt(parts[3])
+    if (isNaN(sendAnnouncementTaskId) || isNaN(deleteStatusMessageTaskId)) {
+      throw new Error("Invalid callback data")
+    }
+    return {
+      type,
+      announcementMessageId: parseMessageId(parts),
+      sendAnnouncementTaskId,
+      deleteStatusMessageTaskId,
+    }
+  } else {
+    throw new Error("Invalid AnnouncementReply type")
+  }
+}
+const constructInitialInlineKeyboard = (messageId: MessageIdentifier) => [
   [
     {
       text: "Ja",
-      callback_data: `APR-${JSON.stringify([AnnouncementReply.Approve, messageId])}`,
+      callback_data: encodeCallbackData({
+        type: AnnouncementReply.Approve,
+        announcementMessageId: messageId,
+      }),
     },
     {
       text: "Later",
-      callback_data: `APR-${JSON.stringify([AnnouncementReply.Schedule, messageId])}`,
+      callback_data: encodeCallbackData({
+        type: AnnouncementReply.Schedule,
+        announcementMessageId: messageId,
+      }),
     },
   ],
   [
     {
       text: "Nee",
-      callback_data: `APR-${JSON.stringify([AnnouncementReply.Decline, messageId])}`,
+      callback_data: encodeCallbackData({
+        type: AnnouncementReply.Decline,
+        announcementMessageId: messageId,
+      }),
     },
   ],
 ]
 
-const constructScheduleInlineKeyboard = (messageId: number, now: DateTime) => {
-  const options = [1, 2, 4, 8, 24, 48]
-    .map(h => now.plus({ hours: h }))
-    .map(t => ({
-      text: t.toLocaleString(DateTime.DATETIME_SHORT),
-      callback_data: `APR-${JSON.stringify([AnnouncementReply.ScheduleAnswer, messageId, t.toMillis()])}`,
-    }))
+const constructScheduleInlineKeyboard = (announcementMessageId: MessageIdentifier, now: DateTime) => {
   const optionRows: InlineKeyboardButton[][] = [
     [
       {
         text: "Toch niet",
-        callback_data: `APR-${JSON.stringify([AnnouncementReply.ScheduleOptionCancel, messageId])}`,
+        callback_data: encodeCallbackData({
+          type: AnnouncementReply.ScheduleOptionCancel,
+          announcementMessageId: announcementMessageId,
+        }),
       },
     ],
-    ...options.reduce<InlineKeyboardButton[][]>(
-      (rows, opt) => {
-        const precedingRows = rows.slice(0, rows.length - 1)
-        const lastRow = rows[rows.length - 1]
-        if (lastRow.length < 3) {
-          return [...precedingRows, [...lastRow, opt]]
-        } else {
-          return [...rows, [opt]]
-        }
-      },
-      [[]],
-    ),
+    ...[1, 2, 4, 8, 24, 48]
+      .map(h => now.plus({ hours: h }))
+      .map(t => ({
+        text: t.toLocaleString(DateTime.DATETIME_SHORT),
+        callback_data: encodeCallbackData({
+          type: AnnouncementReply.ScheduleAnswer,
+          announcementMessageId: announcementMessageId,
+          time: t.toMillis(),
+        }),
+      }))
+      .reduce<InlineKeyboardButton[][]>(
+        (rows, opt) => {
+          const precedingRows = rows.slice(0, rows.length - 1)
+          const lastRow = rows[rows.length - 1]
+          if (lastRow.length < 3) {
+            return [...precedingRows, [...lastRow, opt]]
+          } else {
+            return [...rows, [opt]]
+          }
+        },
+        [[]],
+      ),
     [
       {
         text: "Vul datum in",
-        callback_data: `APR-${JSON.stringify([AnnouncementReply.ScheduleCustomTime, messageId])}`,
+        callback_data: encodeCallbackData({
+          type: AnnouncementReply.ScheduleCustomTime,
+
+          announcementMessageId: announcementMessageId,
+        }),
       },
     ],
   ]
   return optionRows
 }
 
-const constructCustomScheduleInlineKeyboard = (messageId: number) => [
+const constructCustomScheduleInlineKeyboard = (messageId: MessageIdentifier) => [
   [
     {
       text: "Toch niet",
-      callback_data: `APR-${JSON.stringify([AnnouncementReply.ScheduleCustomTimeCancel, messageId])}`,
+      callback_data: encodeCallbackData({
+        type: AnnouncementReply.ScheduleCustomTimeCancel,
+        announcementMessageId: messageId,
+      }),
     },
   ],
 ]
@@ -108,7 +235,10 @@ const announcementQuestion = new TelegrafStatelessQuestion<MyTelegrafContext>("S
     await ctx.telegram.sendMessage(announcementApprovalChatId, "Goedkeuren?", {
       reply_to_message_id: forwardedMessage.message_id,
       reply_markup: {
-        inline_keyboard: constructInitialInlineKeyboard(forwardedMessage.message_id),
+        inline_keyboard: constructInitialInlineKeyboard({
+          chatId: ctx.message.chat.id,
+          messageId: ctx.message.message_id,
+        }),
       },
     })
     await ctx.reply("Joe, ligt klaar voor goedkeuring", { reply_markup: { remove_keyboard: true } })
@@ -144,7 +274,7 @@ const announcementCustomSchedulequestion = new TelegrafStatelessQuestion<MyTeleg
         additional.statusMessageId.messageId,
         undefined,
         {
-          inline_keyboard: constructInitialInlineKeyboard(additional.announcementMessageId.messageId),
+          inline_keyboard: constructInitialInlineKeyboard(additional.announcementMessageId),
         },
       )
     } else {
@@ -172,25 +302,27 @@ async function scheduleSend(
     announcementChatId,
     true,
   )
-  const deleteApprovalMessageTask = new DeleteMessageTask(sendDate, statusMessageId.chatId, statusMessageId.messageId)
-  await db.persist([scheduledAnnouncementTask, deleteApprovalMessageTask]).flush()
+  const deleteStatusMessageTask = new DeleteMessageTask(sendDate, statusMessageId.chatId, statusMessageId.messageId)
+  await db.persist([scheduledAnnouncementTask, deleteStatusMessageTask]).flush()
 
   await telegram.editMessageText(
     statusMessageId.chatId,
     statusMessageId.messageId,
     undefined,
-    `Gaat om ${sendDate.toLocaleString(DateTime.TIME_24_SIMPLE)}`,
+    `Gaat op ${sendDate.toLocaleString(DateTime.DATETIME_FULL)}`,
   )
   await telegram.editMessageReplyMarkup(statusMessageId.chatId, statusMessageId.messageId, undefined, {
     inline_keyboard: [
       [
         {
           text: "Annuleer",
-          callback_data: `APR-${JSON.stringify([
-            AnnouncementReply.ScheduleCancel,
-            announcementMessageId,
-            [scheduledAnnouncementTask.id, deleteApprovalMessageTask.id],
-          ])}`,
+          callback_data: encodeCallbackData({
+            type: AnnouncementReply.ScheduleCancel,
+
+            announcementMessageId: announcementMessageId,
+            sendAnnouncementTaskId: scheduledAnnouncementTask.id,
+            deleteStatusMessageTaskId: deleteStatusMessageTask.id,
+          }),
         },
       ],
     ],
@@ -213,34 +345,27 @@ export default function announcementCommands(bot: Telegraf<MyTelegrafContext>) {
   bot.on("callback_query", async (ctx, next) => {
     if (
       ctx.callbackQuery.data != null &&
-      ctx.callbackQuery.data.startsWith("APR") &&
+      ctx.callbackQuery.data.startsWith("APR-") &&
       !callbacksProcessing.has(ctx.callbackQuery.data)
     ) {
       callbacksProcessing.add(ctx.callbackQuery.data)
-      const jsonStr = ctx.callbackQuery.data.slice(4)
-      const callbackData = JSON.parse(jsonStr)
-      const [action, messageId, extraPayload] = callbackData as [
-        AnnouncementReply,
-        number,
-        number | [number, number] | undefined,
-      ]
-      if (isMemberOfEnum(action, AnnouncementReply)) {
-        if (action === AnnouncementReply.Approve) {
+      try {
+        const callbackData = decodeCallbackData(ctx.callbackQuery.data)
+        if (callbackData.type === AnnouncementReply.Approve) {
           await ctx.deleteMessage()
-          await ctx.telegram.copyMessage(announcementChatId, announcementApprovalChatId, messageId)
-        } else if (action === AnnouncementReply.Decline) {
-          await ctx.deleteMessage()
-          await ctx.deleteMessage(messageId)
-        } else if (action === AnnouncementReply.Schedule) {
+          await ctx.telegram.copyMessage(
+            announcementChatId,
+            callbackData.announcementMessageId.chatId,
+            callbackData.announcementMessageId.messageId,
+          )
+        } else if (callbackData.type === AnnouncementReply.Decline) {
+          await ctx.editMessageText("Afgekeurd")
+        } else if (callbackData.type === AnnouncementReply.Schedule) {
           await ctx.editMessageReplyMarkup({
-            inline_keyboard: constructScheduleInlineKeyboard(messageId, DateTime.now()),
+            inline_keyboard: constructScheduleInlineKeyboard(callbackData.announcementMessageId, DateTime.now()),
           })
-        } else if (action === AnnouncementReply.ScheduleAnswer && typeof extraPayload === "number") {
-          const dateToSend = DateTime.fromMillis(extraPayload)
-          const announcementMessageId: MessageIdentifier = {
-            chatId: announcementApprovalChatId,
-            messageId,
-          }
+        } else if (callbackData.type === AnnouncementReply.ScheduleAnswer) {
+          const dateToSend = DateTime.fromMillis(callbackData.time)
           if (!ctx.chat || !ctx.callbackQuery.message) {
             logger.error("Weird state in callback query, no chat or message attached")
             await ctx.reply("It's gone wrong...")
@@ -250,47 +375,58 @@ export default function announcementCommands(bot: Telegraf<MyTelegrafContext>) {
             chatId: ctx.chat.id,
             messageId: ctx.callbackQuery.message.message_id,
           }
-          await scheduleSend(ctx.telegram, ctx.db, announcementMessageId, dateToSend, statusMessageId)
-        } else if (action === AnnouncementReply.ScheduleCustomTime) {
+          await scheduleSend(ctx.telegram, ctx.db, callbackData.announcementMessageId, dateToSend, statusMessageId)
+        } else if (callbackData.type === AnnouncementReply.ScheduleCustomTime) {
           if (!ctx.chat || !ctx.callbackQuery.message) {
             logger.error("Weird state in callback query, no chat or message attached")
             await ctx.reply("It's gone wrong...")
             return
           }
           const additionalState: AnnouncementCustomScheduleQuestionAdditionalState = {
-            announcementMessageId: { chatId: announcementApprovalChatId, messageId },
+            announcementMessageId: callbackData.announcementMessageId,
             statusMessageId: {
               chatId: ctx.chat.id,
               messageId: ctx.callbackQuery.message.message_id,
             },
           }
           await ctx.editMessageReplyMarkup({
-            inline_keyboard: constructCustomScheduleInlineKeyboard(messageId),
+            inline_keyboard: constructCustomScheduleInlineKeyboard(callbackData.announcementMessageId),
           })
           await announcementCustomSchedulequestion.replyWithMarkdown(
             ctx,
             "Oke, hoelaat? (ISO 8601 standaard)",
             JSON.stringify(additionalState),
           )
-        } else if (action === AnnouncementReply.ScheduleOptionCancel) {
+        } else if (callbackData.type === AnnouncementReply.ScheduleOptionCancel) {
           await ctx.editMessageReplyMarkup({
-            inline_keyboard: constructInitialInlineKeyboard(messageId),
+            inline_keyboard: constructInitialInlineKeyboard(callbackData.announcementMessageId),
           })
-        } else if (action === AnnouncementReply.ScheduleCancel && Array.isArray(extraPayload)) {
-          const task = await ctx.db.find(Task, { id: { $in: extraPayload } })
-
+        } else if (callbackData.type === AnnouncementReply.ScheduleCancel) {
+          const task = await ctx.db.find(Task, {
+            id: { $in: [callbackData.deleteStatusMessageTaskId, callbackData.sendAnnouncementTaskId] },
+          })
+          if (task.length !== 2) {
+            throw new Error("Expected 2 tasks to be found")
+          }
           ctx.db.remove(task)
 
-          ctx.editMessageReplyMarkup({ inline_keyboard: constructInitialInlineKeyboard(messageId) })
-        } else if (action === AnnouncementReply.ScheduleCustomTimeCancel) {
+          await ctx.editMessageText("Later versturen geannuleerd. Wat wil je nou?")
           await ctx.editMessageReplyMarkup({
-            inline_keyboard: constructScheduleInlineKeyboard(messageId, DateTime.now()),
+            inline_keyboard: constructInitialInlineKeyboard(callbackData.announcementMessageId),
+          })
+        } else if (callbackData.type === AnnouncementReply.ScheduleCustomTimeCancel) {
+          await ctx.editMessageReplyMarkup({
+            inline_keyboard: constructScheduleInlineKeyboard(callbackData.announcementMessageId, DateTime.now()),
           })
         }
-      } else {
-        logger.error({ callbackQuery: ctx.callbackQuery }, "invalid announcement callback data")
+      } catch (e) {
+        logger.error(
+          { callbackQuery: ctx.callbackQuery, error: JSON.stringify(e, Object.getOwnPropertyNames(e)) },
+          "invalid announcement callback data",
+        )
+      } finally {
+        callbacksProcessing.delete(ctx.callbackQuery.data)
       }
-      callbacksProcessing.delete(ctx.callbackQuery.data)
     } else {
       await next()
     }
