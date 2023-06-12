@@ -52,10 +52,10 @@ const constructInitialInlineKeyboard = (messageId: number) => [
 ]
 
 const constructScheduleInlineKeyboard = (messageId: number, now: DateTime) => {
-  const options = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    .map(h => now.plus({ minutes: h * 30 }))
+  const options = [1, 2, 4, 8, 24, 48]
+    .map(h => now.plus({ hours: h }))
     .map(t => ({
-      text: t.toLocaleString(DateTime.TIME_24_SIMPLE),
+      text: t.toLocaleString(DateTime.DATETIME_SHORT),
       callback_data: `APR-${JSON.stringify([AnnouncementReply.ScheduleAnswer, messageId, t.toMillis()])}`,
     }))
   const optionRows: InlineKeyboardButton[][] = [
@@ -65,15 +65,19 @@ const constructScheduleInlineKeyboard = (messageId: number, now: DateTime) => {
         callback_data: `APR-${JSON.stringify([AnnouncementReply.ScheduleOptionCancel, messageId])}`,
       },
     ],
-    [],
-  ]
-  options.forEach(opt => {
-    if (optionRows[optionRows.length - 1].length < 3) {
-      optionRows[optionRows.length - 1].push(opt)
+    ...options.reduce<InlineKeyboardButton[][]>(
+      (rows, opt) => {
+        const precedingRows = rows.slice(0, rows.length - 1)
+        const lastRow = rows[rows.length - 1]
+        if (lastRow.length < 3) {
+          return [...precedingRows, [...lastRow, opt]]
     } else {
-      optionRows.push([opt])
+          return [...rows, [opt]]
     }
-  })
+      },
+      [[]],
+    ),
+  ]
   return optionRows
 }
 
