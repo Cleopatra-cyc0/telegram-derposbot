@@ -76,6 +76,15 @@ export type CongressusMember = {
   payment_required: boolean
   payment_success_uri: string
   payment_start_uri: string
+  status: {
+    id: number
+    name: string
+    status_id: number
+    member_from: `${number}-${number}-${number}`
+    member_to: `${number}-${number}-${number}`
+    archived: boolean
+    deceased: boolean
+  }
 }
 
 type CongressusPage = {
@@ -131,7 +140,14 @@ async function fetchBirthdayMembers() {
   }
 
   const result = allMembers
-    .filter(m => m.show_almanac_date_of_birth && m.date_of_birth != null && IsSameDate(m.date_of_birth))
+    .filter(
+      m =>
+        !m.status.archived &&
+        !m.status.deceased &&
+        m.show_almanac_date_of_birth &&
+        m.date_of_birth != null &&
+        IsSameDate(m.date_of_birth),
+    )
     .map(m =>
       [m.given_name || m.nickname || m.first_name, m.primary_last_name_prefix, m.primary_last_name_main]
         .filter(n => n != null && n !== "")
