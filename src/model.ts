@@ -16,6 +16,7 @@ export type CongressusMember = {
   // Status omitted
   gender: string
   initials: string
+  nickname: string
   given_name: string
   first_name: string
   primary_last_name_prefix: string
@@ -132,7 +133,7 @@ async function fetchBirthdayMembers() {
   const result = allMembers
     .filter(m => m.show_almanac_date_of_birth && m.date_of_birth != null && IsSameDate(m.date_of_birth))
     .map(m =>
-      [m.first_name, m.primary_last_name_prefix, m.primary_last_name_main].filter(n => n != null && n !== "").join(" "),
+      [m.nickname || m.first_name, m.primary_last_name_prefix, m.primary_last_name_main].filter(n => n != null && n !== "").join(" "),
     )
   logger.debug(time(), "congressus: fetch-all-birthdays")
   return result
