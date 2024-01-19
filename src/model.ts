@@ -96,7 +96,7 @@ type CongressusPage = {
   total: number
 }
 
-async function getAllPages(baseUrl: URL, fetchOptions: RequestInit = {}): Promise<CongressusMember[]> {
+export async function getAllPages(baseUrl: URL, fetchOptions: RequestInit = {}): Promise<CongressusMember[]> {
   const data = []
 
   let pageNum = 1
