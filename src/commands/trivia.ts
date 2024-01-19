@@ -1,6 +1,8 @@
 import sleep from "sleep-promise"
 import { Telegraf } from "telegraf"
-import { MyTelegrafContext } from ".."
+import { MyKoaContext, MyTelegrafContext } from ".."
+import ChatSubscription from "../entities/ChatSubscription"
+import logger from "../log"
 import { getMemberBirthDate } from "../model"
 import { calculateDaysTillBirthDay, getRandomLocation } from "../util"
 
@@ -78,3 +80,25 @@ export default function triviaCommands(bot: Telegraf<MyTelegrafContext>) {
     await ctx.reply(ctx.message.text.slice("/pingpong".length))
   })
 }
+
+const customMessageAuth = process.env.CUSTOM_MESSAGE_AUTH
+
+export const customMessageHandler = (bot: Telegraf<MyTelegrafContext>) =>
+  async function customMessageHandler(ctx: MyKoaContext) {
+    if (!customMessageAuth) {
+      logger.warn("no custom message auth provided")
+      ctx.status = 503
+      return
+    }
+    if (ctx.header.authorization === `Bearer ${customMessageAuth}`) {
+      const message = ctx.body as string
+      const channels = await ctx.db.find(ChatSubscription, { type: "birthday" })
+      for (const channel of channels) {
+        await bot.telegram.sendMessage(channel.telegramChatId, message)
+      }
+      logger.info({ message, channels }, "sent custom message")
+    } else {
+      logger.warn({ headers: ctx.header }, "unauthorized custom message")
+      ctx.status = 401
+    }
+  }

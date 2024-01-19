@@ -12,7 +12,7 @@ import MikroOrm from "./database"
 import ChatSubscription, { SubScriptionType } from "./entities/ChatSubscription"
 import subscriptionCommands from "./commands/subscription"
 import birthdayCommands from "./commands/birthday"
-import triviaCommands from "./commands/trivia"
+import triviaCommands, { customMessageHandler } from "./commands/trivia"
 import recordStat from "./commands/stat"
 import { congressusOAuthHandler, userCommands } from "./commands/user"
 import announcementCommands from "./commands/announcement"
@@ -174,6 +174,8 @@ chatGpt(bot)
   router.post("/dok_payment", dokHandler)
 
   router.get("/oauth/congressus", congressusOAuthHandler)
+
+  router.post("/custom-message", customMessageHandler(bot))
 
   app.use(router.middleware())
   koaServer = app.listen(process.env.DEV_PORT ?? 80)
