@@ -3,17 +3,14 @@ import { DateTime } from "luxon"
 import { Telegraf } from "telegraf"
 import { MyTelegrafContext } from ".."
 import Quote from "../entities/Quote"
+import User from "../entities/User"
 import logger from "../log"
 import { getMember } from "../model"
 import { checkAndInsertRateLimit } from "../util"
 import { BotCommandScope, registerCommand } from "./commandlist"
 
 export default function quoteCommands(bot: Telegraf<MyTelegrafContext>) {
-  registerCommand("cloetje", "geef me een cloetje", [
-    BotCommandScope.Private,
-    BotCommandScope.Groups,
-    BotCommandScope.Admins,
-  ])
+  registerCommand("cloetje", "geef me een cloetje", [BotCommandScope.Private, BotCommandScope.Admins])
   bot.command("cloetje", async ctx => {
     if (ctx.chat.type === "private") {
       if (checkAndInsertRateLimit(`quote${ctx.chat.id}`, 1, 1000 * 60 * 60 * 24)) {
@@ -24,8 +21,24 @@ export default function quoteCommands(bot: Telegraf<MyTelegrafContext>) {
         await ctx.replyWithPhoto("https://i.ibb.co/KX0v39J/cleo-leus.png")
       }
     } else {
-      ctx.reply("alleen prive")
+      await ctx.reply("alleen prive")
     }
+  })
+
+  registerCommand("cloe", "een nieuw cloetje opslaan!", [
+    BotCommandScope.Private,
+    BotCommandScope.Groups,
+    BotCommandScope.Admins,
+  ])
+  bot.command("cloe", async ctx => {
+    const text = ctx.message.text.split(" ").slice(1).join(" ")
+    const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)
+
+    const quote = new Quote()
+    quote.text = text
+    quote.author = user
+    ctx.db.persist(quote)
+    await ctx.reply("cloe opgeslagen")
   })
 }
 
