@@ -31,8 +31,12 @@ export default function quoteCommands(bot: Telegraf<MyTelegrafContext>) {
     BotCommandScope.Admins,
   ])
   bot.command("cloe", async ctx => {
-    const text = ctx.message.text.split(" ").slice(1).join(" ")
-    const user = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)
+    const text: string = ctx.message.text.split(" ").slice(1).join(" ").trim()
+    const user: User = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)
+
+    if (text == "") {
+      await ctx.reply("je hebt geen cloetje meegestuurd, dumbass.")
+    }
 
     const quote = new Quote()
     quote.text = text
