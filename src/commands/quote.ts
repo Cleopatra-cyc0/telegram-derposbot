@@ -68,7 +68,7 @@ async function getCloeMessage(db: EntityManager) {
       : null
 
     const indiener = member
-      ? `${member.first_name}${member.primary_last_name_prefix ? ` ${member.primary_last_name_prefix}` : ""} ${
+      ? `${member.given_name ?? member.first_name}${member.primary_last_name_prefix ? ` ${member.primary_last_name_prefix}` : ""} ${
           member.primary_last_name_main
         }`
       : "onbekend"
