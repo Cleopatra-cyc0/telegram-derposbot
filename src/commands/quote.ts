@@ -35,14 +35,14 @@ export default function quoteCommands(bot: Telegraf<MyTelegrafContext>) {
     const user: User = await ctx.db.getRepository(User).findOrCreate(ctx.message.from.id)
 
     if (text == "") {
-      await ctx.reply("je hebt geen cloetje meegestuurd, dumbass.")
+        await ctx.reply("je hebt geen cloetje meegestuurd, dumbass.")
+    } else {
+        const quote = new Quote()
+        quote.text = text
+        quote.author = user
+        ctx.db.persist(quote)
+        await ctx.reply("cloe opgeslagen")
     }
-
-    const quote = new Quote()
-    quote.text = text
-    quote.author = user
-    ctx.db.persist(quote)
-    await ctx.reply("cloe opgeslagen")
   })
 }
 
